@@ -25,6 +25,9 @@ export default function CharacterAvatar({
 
   return (
     <svg
+      // Indispensable quand le SVG est sérialisé en data URI (graphe en canvas) :
+      // sans namespace, le navigateur refuse de le charger comme image.
+      xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 100 100"
       width={size}
       height={size}

@@ -163,17 +163,13 @@ export function routeHelpRequest(text: string, authorId: string | null, limit = 
   return scored.sort((a, b) => b.score - a.score).slice(0, limit);
 }
 
-/** Mesure de "trou structurel" : une membre peu connectée est une priorité d'animation. */
+/** Chiffres de forme du réseau, affichés au-dessus du graphe. */
 export function networkHealth() {
   const adj = buildAdjacency();
-  const isolated = MEMBERS.filter((m) => (adj.get(m.id)?.size ?? 0) === 0);
-  const weak = MEMBERS.filter((m) => {
-    const n = adj.get(m.id)?.size ?? 0;
-    return n > 0 && n < 2;
-  });
   const edges = [...adj.values()].reduce((a, s) => a + s.size, 0) / 2;
-  const density = (2 * edges) / (MEMBERS.length * (MEMBERS.length - 1));
-  return { isolated, weak, edges, density, adj };
+  const nodes = adj.size;
+  const density = (2 * edges) / (nodes * (nodes - 1));
+  return { edges, density, adj };
 }
 
 /**
@@ -220,4 +216,47 @@ function icebreakerFor(members: Member[]): string {
   if (shared) return `Qui a découvert ${shared} le plus récemment ?`;
   const jobs = members.map((m) => m.job.toLowerCase());
   return `Chacune explique le métier de sa voisine : ${jobs.slice(0, 2).join(" et ")}…`;
+}
+
+/**
+ * Plus court chemin entre deux membres (BFS). C'est la réponse à
+ * « qui peut me présenter à elle ? » : on renvoie la chaîne complète.
+ */
+export function introPath(fromId: string, toId: string): string[] | null {
+  const adj = buildAdjacency();
+  if (fromId === toId) return [fromId];
+  if (!adj.has(fromId) || !adj.has(toId)) return null;
+
+  const previous = new Map<string, string>();
+  const seen = new Set([fromId]);
+  const queue = [fromId];
+
+  while (queue.length) {
+    const current = queue.shift()!;
+    for (const next of adj.get(current) ?? []) {
+      if (seen.has(next)) continue;
+      seen.add(next);
+      previous.set(next, current);
+      if (next === toId) {
+        const path = [toId];
+        let step = toId;
+        while (previous.has(step)) {
+          step = previous.get(step)!;
+          path.unshift(step);
+        }
+        return path;
+      }
+      queue.push(next);
+    }
+  }
+  return null;
+}
+
+/** Amies communes : les personnes qui peuvent présenter directement. */
+export function mutualFriends(aId: string, bId: string): string[] {
+  const adj = buildAdjacency();
+  const a = adj.get(aId);
+  const b = adj.get(bId);
+  if (!a || !b) return [];
+  return [...a].filter((id) => b.has(id));
 }

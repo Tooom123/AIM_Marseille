@@ -298,9 +298,21 @@ export const MEMBERS_BY_ID: Record<string, Member> = Object.fromEntries(
 );
 
 /** Graphe non orienté : on symétrise les relations déclarées. */
-export function buildAdjacency(members: Member[] = MEMBERS): Map<string, Set<string>> {
+/**
+ * Les membres que l'utilisatrice connaît déjà en arrivant : sans ce point
+ * d'ancrage, elle serait hors du graphe et aucun chemin d'introduction ne
+ * pourrait être calculé.
+ */
+export const MY_CONNECTIONS = ["fatima", "maya", "elodie"];
+
+export function buildAdjacency(
+  members: Member[] = MEMBERS,
+  viewerId = "me",
+): Map<string, Set<string>> {
   const adj = new Map<string, Set<string>>();
   for (const m of members) adj.set(m.id, new Set());
+  adj.set(viewerId, new Set());
+
   for (const m of members) {
     for (const other of m.knows) {
       if (!adj.has(other)) continue;
@@ -308,5 +320,12 @@ export function buildAdjacency(members: Member[] = MEMBERS): Map<string, Set<str
       adj.get(other)!.add(m.id);
     }
   }
+
+  for (const id of MY_CONNECTIONS) {
+    if (!adj.has(id)) continue;
+    adj.get(viewerId)!.add(id);
+    adj.get(id)!.add(viewerId);
+  }
+
   return adj;
 }
