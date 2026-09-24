@@ -9,8 +9,8 @@ import { ME, useStore } from "@/lib/store";
 
 const NAV = [
   { href: "/accueil", label: "Accueil", icon: HomeIcon },
-  { href: "/carte", label: "Carte", icon: MapIcon },
   { href: "/agenda", label: "Agenda", icon: CalIcon },
+  { href: "/carte", label: "Carte", icon: MapIcon },
   { href: "/reseau", label: "Réseau", icon: UsersIcon },
   { href: "/marrainage", label: "Marrainage", icon: GiftIcon },
 ];
