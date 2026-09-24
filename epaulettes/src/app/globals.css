@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  /* Charte Les Épaulettes */
+  --turquoise: #25C7D9;
+  --cream: #F2F3DC;
+  --rose: #F6577C;
+
+  --bg: #FBFCF4;
+  --surface: #FFFFFF;
+  --ink: #12333A;
+  --ink-soft: #5A7178;
+  --line: #E3E7D4;
+}
+
+@theme inline {
+  --color-turquoise: var(--turquoise);
+  --color-cream: var(--cream);
+  --color-rose: var(--rose);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --font-sans: var(--font-sans-app);
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans-app), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Scrollbars discrètes */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #D9DFC8; border-radius: 99px; border: 3px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-track { background: transparent; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.animate-fade-up { animation: fadeUp .4s ease both; }
+
+@keyframes pulseRing {
+  0% { box-shadow: 0 0 0 0 rgb(246 87 124 / .5); }
+  70% { box-shadow: 0 0 0 14px rgb(246 87 124 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(246 87 124 / 0); }
+}
+.animate-ring { animation: pulseRing 2s infinite; }
+
+.maplibregl-ctrl-attrib { font-size: 10px; }
+.maplibregl-popup-content { border-radius: 14px; padding: 0; overflow: hidden; box-shadow: 0 12px 32px rgb(18 51 58 / .18); }
+.maplibregl-popup-close-button { font-size: 18px; padding: 2px 8px; color: #5A7178; }
