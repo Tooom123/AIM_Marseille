@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Map as MlMap, Marker, Popup, NavigationControl,
+  Map as MlMap, Marker, Popup, NavigationControl, setWorkerUrl,
   type LayerSpecification,
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -14,6 +14,10 @@ import type { Epaulette } from "@/lib/types";
 const STYLE_URL = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 
 const MARSEILLE: [number, number] = [5.3772, 43.2921];
+
+// MapLibre charge son worker depuis un fichier séparé. Le bundler ne le sert pas
+// de manière fiable, alors on le sert depuis /public : ça marche en dev comme en prod.
+setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
 export default function Map3D({
   events,
@@ -58,6 +62,12 @@ export default function Map3D({
       // Bâtiments extrudés : c'est ce qui donne le relief 3D.
       const layers: LayerSpecification[] = m.getStyle().layers ?? [];
       const firstSymbol = layers.find((l) => l.type === "symbol")?.id;
+
+      // Le style Positron dessine déjà les bâtiments à plat : on les masque
+      // pour ne garder que notre extrusion.
+      for (const id of ["building", "building-top"]) {
+        if (m.getLayer(id)) m.setLayoutProperty(id, "visibility", "none");
+      }
 
       if (m.getSource("carto")) {
         m.addLayer(
