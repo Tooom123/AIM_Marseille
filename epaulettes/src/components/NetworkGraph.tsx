@@ -129,6 +129,28 @@ export default function NetworkGraph({
 
     const radiusOf = (n: Node) => (n.id === viewerId ? 23 : 15 + Math.min(n.deg, 5) * 1.9);
 
+    function paintBackground() {
+      // Halos de la charte : le graphe se détache sur un fond vivant plutôt
+      // que sur du blanc.
+      const blobs: [number, number, number, string][] = [
+        [0.22, 0.24, 0.42, "rgba(37,199,217,.30)"],
+        [0.80, 0.20, 0.38, "rgba(246,87,124,.24)"],
+        [0.68, 0.82, 0.44, "rgba(78,216,192,.26)"],
+        [0.16, 0.78, 0.36, "rgba(255,216,77,.22)"],
+        [0.50, 0.50, 0.55, "rgba(185,167,230,.16)"],
+      ];
+      for (const [fx, fy, fr, color] of blobs) {
+        const x = width * fx;
+        const y = height * fy;
+        const r = Math.max(width, height) * fr;
+        const g = c2d.createRadialGradient(x, y, 0, x, y, r);
+        g.addColorStop(0, color);
+        g.addColorStop(1, "rgba(255,255,255,0)");
+        c2d.fillStyle = g;
+        c2d.fillRect(0, 0, width, height);
+      }
+    }
+
     function draw() {
       const hovered = hoverRef.current;
       const selected = selectedRef.current;
@@ -145,6 +167,7 @@ export default function NetworkGraph({
       }
 
       c2d.clearRect(0, 0, width, height);
+      paintBackground();
 
       // Liens
       for (const [aId, bId] of edges) {
@@ -160,8 +183,8 @@ export default function NetworkGraph({
           c2d.strokeStyle = "rgba(37,199,217,.85)";
           c2d.lineWidth = 2.4;
         } else {
-          c2d.strokeStyle = focus ? "rgba(18,51,58,.12)" : "rgba(18,51,58,.22)";
-          c2d.lineWidth = 1.3;
+          c2d.strokeStyle = focus ? "rgba(18,51,58,.16)" : "rgba(18,51,58,.32)";
+          c2d.lineWidth = 1.5;
         }
         c2d.beginPath();
         c2d.moveTo(a.x, a.y);
@@ -207,10 +230,13 @@ export default function NetworkGraph({
         if (!dim && (isFocus || onPath || isViewer || !focus)) {
           const label = isViewer ? viewerName : MEMBERS_BY_ID[n.id]?.firstName;
           if (label) {
-            c2d.fillStyle = "#12333A";
             c2d.font = `${isViewer ? "700 10" : "600 9"}px ui-sans-serif, system-ui, sans-serif`;
             c2d.textAlign = "center";
             c2d.textBaseline = "top";
+            c2d.lineWidth = 3;
+            c2d.strokeStyle = "rgba(255,255,255,.92)";
+            c2d.strokeText(label, n.x, n.y + r + 3);
+            c2d.fillStyle = "#12333A";
             c2d.fillText(label, n.x, n.y + r + 3);
           }
         }
@@ -234,7 +260,7 @@ export default function NetworkGraph({
           let dx = b.x - a.x, dy = b.y - a.y;
           let d2 = dx * dx + dy * dy;
           if (d2 < 1) { d2 = 1; dx = Math.random() - 0.5; dy = Math.random() - 0.5; }
-          const f = 3400 / d2;
+          const f = 4200 / d2;
           const d = Math.sqrt(d2);
           const fx = (dx / d) * f, fy = (dy / d) * f;
           a.vx -= fx; a.vy -= fy; b.vx += fx; b.vy += fy;
@@ -250,8 +276,8 @@ export default function NetworkGraph({
         a.vx += fx; a.vy += fy; b.vx -= fx; b.vy -= fy;
       }
       for (const n of nodes) {
-        n.vx += (width / 2 - n.x) * 0.006;
-        n.vy += (height / 2 - n.y) * 0.006;
+        n.vx += (width / 2 - n.x) * 0.010;
+        n.vy += (height / 2 - n.y) * 0.010;
         n.vx *= 0.86; n.vy *= 0.86;
         n.x += n.vx; n.y += n.vy;
         const pad = radiusOf(n) + 14;
@@ -306,7 +332,7 @@ export default function NetworkGraph({
   const hovered = hover && hover !== viewerId ? MEMBERS_BY_ID[hover] : null;
 
   return (
-    <div className="relative size-full bg-gradient-to-br from-cream/50 to-bg">
+    <div className="relative size-full bg-[#FBFCF4]">
       <canvas ref={canvasRef} className="size-full" />
       {hovered && (
         <div className="pointer-events-none absolute bottom-3 left-3 animate-fade-up rounded-xl bg-surface/95 px-3 py-2 shadow-lg backdrop-blur">

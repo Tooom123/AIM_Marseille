@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useState } from "react";
 import AvatarEditor from "@/components/AvatarEditor";
 import { Logo } from "@/components/Shell";
 import { Button, Field, TagInput, inputClass } from "@/components/ui";
@@ -25,8 +25,19 @@ const STEPS = [
 ] as const;
 
 export default function Bienvenue() {
+  return (
+    <Suspense fallback={null}>
+      <Onboarding />
+    </Suspense>
+  );
+}
+
+function Onboarding() {
   const router = useRouter();
-  const { profile, saveProfile } = useStore();
+  const params = useSearchParams();
+  const { profile, saveProfile, resetAll } = useStore();
+  // `?revoir=1` : on repasse l'onboarding sans perdre son profil.
+  const replaying = params.get("revoir") === "1";
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState(() => ({
     firstName: profile.firstName, lastName: profile.lastName,
@@ -96,12 +107,26 @@ export default function Bienvenue() {
         <div className="mb-8 flex items-center gap-2.5">
           <Logo />
           <span className="font-semibold tracking-tight">Les Épaulettes</span>
-          <button
-            onClick={finish}
-            className="ml-auto text-xs text-ink-soft underline decoration-dotted hover:text-ink"
-          >
-            Passer pour la démo
-          </button>
+          <div className="ml-auto flex items-center gap-3">
+            {replaying && (
+              <button
+                onClick={() => {
+                  // Réinitialiser depuis l'onboarding : on repart vraiment de zéro.
+                  resetAll();
+                  router.refresh();
+                }}
+                className="text-xs text-ink-soft underline decoration-dotted hover:text-ink"
+              >
+                Vider le profil
+              </button>
+            )}
+            <button
+              onClick={replaying ? () => router.push("/accueil") : finish}
+              className="text-xs text-ink-soft underline decoration-dotted hover:text-ink"
+            >
+              {replaying ? "Revenir à l'app" : "Passer pour la démo"}
+            </button>
+          </div>
         </div>
 
         {/* Progression */}

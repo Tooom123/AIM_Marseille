@@ -10,6 +10,7 @@ import ZodiacBadge from "@/components/ZodiacBadge";
 import type { AvatarConfig } from "@/lib/avatarOptions";
 import { ZODIAC_SIGNS, ZODIAC_SYMBOL, signFromDate, type ZodiacSign } from "@/lib/zodiac";
 import { ME, useStore } from "@/lib/store";
+import { DEMO_LINKEDIN } from "@/lib/links";
 import {
   HOBBY_SUGGESTIONS, NEED_SUGGESTIONS, NEIGHBORHOODS, OFFER_SUGGESTIONS, SKILL_SUGGESTIONS,
 } from "@/lib/vocab";
@@ -95,7 +96,7 @@ function Profil() {
 
             {profile.linkedin && (
               <a
-                href={`https://${profile.linkedin.replace(/^https?:\/\//, "")}`}
+                href={DEMO_LINKEDIN}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-3 inline-block text-sm font-medium text-[#0E7C8C] hover:underline"
@@ -134,6 +135,23 @@ function Profil() {
                 ))}
               </ul>
             )}
+          </Card>
+
+          <Card>
+            <SectionTitle hint="Pour montrer le parcours d'inscription pendant la démo.">
+              Revoir l&apos;onboarding
+            </SectionTitle>
+            <Button
+              variant="outline"
+              full
+              onClick={() => router.push("/bienvenue?revoir=1")}
+            >
+              Rejouer l&apos;inscription
+            </Button>
+            <p className="mt-2 text-xs text-ink-soft">
+              Vos informations restent pré-remplies : vous pouvez repasser les étapes
+              sans rien perdre.
+            </p>
           </Card>
 
           <Card className="border-rose/25">

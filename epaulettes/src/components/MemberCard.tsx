@@ -1,12 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Avatar from "./Avatar";
 import { Badge, Button } from "./ui";
 import ZodiacBadge from "./ZodiacBadge";
 import type { MatchReason } from "@/lib/types";
 import { useStore } from "@/lib/store";
+import { DEMO_LINKEDIN } from "@/lib/links";
 
 const KIND_LABEL: Record<MatchReason["kind"], { text: string; tone: "turquoise" | "rose" | "neutral" }> = {
   complement: { text: "Complémentaire", tone: "turquoise" },
@@ -16,8 +16,7 @@ const KIND_LABEL: Record<MatchReason["kind"], { text: string; tone: "turquoise" 
 
 export default function MemberCard({ match }: { match: MatchReason }) {
   const { member, why, intro, kind } = match;
-  const { connected, sendMessage } = useStore();
-  const router = useRouter();
+  const { connected, sendMessage, openConversation } = useStore();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState(intro);
   const isConnected = connected.includes(member.id);
@@ -26,7 +25,8 @@ export default function MemberCard({ match }: { match: MatchReason }) {
   /** Envoie le message d'intro et ouvre la conversation : le lien est vraiment créé. */
   function sendIntro() {
     sendMessage(member.id, text);
-    router.push(`/messages?avec=${member.id}`);
+    openConversation(member.id);
+    setOpen(false);
   }
 
   return (
@@ -68,7 +68,7 @@ export default function MemberCard({ match }: { match: MatchReason }) {
           {isConnected ? "Déjà contactée" : "Message d'intro prêt"}
         </Button>
         {member.linkedin && (
-          <a href={`https://${member.linkedin}`} target="_blank" rel="noreferrer"
+          <a href={DEMO_LINKEDIN} target="_blank" rel="noreferrer"
             className="rounded-lg px-2 py-1 text-xs font-medium text-ink-soft transition hover:text-[#0E7C8C]">
             LinkedIn
           </a>

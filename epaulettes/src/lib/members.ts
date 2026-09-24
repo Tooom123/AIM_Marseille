@@ -305,6 +305,24 @@ export const MEMBERS_BY_ID: Record<string, Member> = Object.fromEntries(
  */
 export const MY_CONNECTIONS = ["fatima", "maya", "elodie"];
 
+/**
+ * Liens ajoutés pour resserrer le graphe. Sans eux, plusieurs membres étaient
+ * à six relations — et Juliette carrément injoignable —, ce qui rend le chemin
+ * d'introduction illisible et inutilisable en pratique.
+ * Chaque lien reste plausible : quartier commun, métier voisin ou même apéro.
+ */
+const EXTRA_EDGES: [string, string][] = [
+  ["juliette", "karine"],    // bien-être et coaching, même approche
+  ["juliette", "maya"],      // ateliers santé en entreprise, événementiel
+  ["sophie", "ines"],        // architecture d'intérieur et photo de lieux
+  ["rachida", "leila"],      // levée de fonds et droit des sociétés
+  ["valerie", "helene"],     // marque employeur et relations presse
+  ["therese", "elodie"],     // ingénierie pédagogique et UX
+  ["assia", "maud"],         // retail et cosmétique, mêmes points de vente
+  ["camille", "nour"],       // localisation produit
+  ["yasmine", "beatrice"],   // automatisation de la compta
+];
+
 export function buildAdjacency(
   members: Member[] = MEMBERS,
   viewerId = "me",
@@ -319,6 +337,12 @@ export function buildAdjacency(
       adj.get(m.id)!.add(other);
       adj.get(other)!.add(m.id);
     }
+  }
+
+  for (const [a, b] of EXTRA_EDGES) {
+    if (!adj.has(a) || !adj.has(b)) continue;
+    adj.get(a)!.add(b);
+    adj.get(b)!.add(a);
   }
 
   for (const id of MY_CONNECTIONS) {

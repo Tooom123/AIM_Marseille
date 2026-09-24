@@ -7,6 +7,7 @@ import GifCard from "./GifCard";
 import { Badge, Button, inputClass } from "./ui";
 import { MEMBERS, MEMBERS_BY_ID } from "@/lib/members";
 import { ME, useStore } from "@/lib/store";
+import { DEMO_LINKEDIN } from "@/lib/links";
 import {
   GIFS, STICKER_PACKS, decodeMessage, encodeGif, encodeSticker,
 } from "@/lib/stickers";
@@ -23,7 +24,10 @@ function Dock() {
   const pathname = usePathname();
   const router = useRouter();
   const params = useSearchParams();
-  const { conversations, sendMessage, markConversationRead, unreadCount, profile, ready } = useStore();
+  const {
+    conversations, sendMessage, markConversationRead, unreadCount, profile, ready,
+    pendingConversation, clearPendingConversation,
+  } = useStore();
 
   const [openState, setOpen] = useState(false);
   const [picked, setPicked] = useState<string | null>(null);
@@ -38,7 +42,8 @@ function Dock() {
   // `?avec=sonia` ouvre directement la bonne conversation, depuis n'importe où.
   // On le lit pendant le rendu plutôt que dans un effet : le volet s'ouvre du
   // premier coup, sans rendu intermédiaire.
-  const requested = params.get("avec");
+  // Deux sources : l'URL (lien partagé) et l'état partagé (bouton dans l'app).
+  const requested = pendingConversation ?? params.get("avec");
   const pendingOpen = !!(requested && MEMBERS_BY_ID[requested]);
   const open = openState || pendingOpen;
 
@@ -47,9 +52,10 @@ function Dock() {
     handledRef.current = requested;
     setPicked(requested);
     setOpen(true);
+    clearPendingConversation();
     // On retire le paramètre : sans cela, fermer puis rouvrir rejouerait l'ouverture.
-    router.replace(pathname, { scroll: false });
-  }, [pendingOpen, requested, router, pathname]);
+    if (params.get("avec")) router.replace(pathname, { scroll: false });
+  }, [pendingOpen, requested, router, pathname, params, clearPendingConversation]);
 
   const activeId = picked ?? (pendingOpen ? requested : null) ?? conversations[0]?.withId ?? null;
   const active = conversations.find((c) => c.withId === activeId) ?? null;
@@ -216,7 +222,7 @@ function Dock() {
                   </div>
                   {activeMember.linkedin && (
                     <a
-                      href={`https://${activeMember.linkedin}`}
+                      href={DEMO_LINKEDIN}
                       target="_blank" rel="noreferrer"
                       className="rounded-lg border border-line px-2 py-1 text-xs text-ink-soft transition hover:border-turquoise hover:text-ink"
                     >

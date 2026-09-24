@@ -91,6 +91,11 @@ type Ctx = State & {
   markConnected: (memberId: string) => void;
   inviteToEvent: (eventId: string, memberIds: string[]) => void;
   sendMessage: (toId: string, text: string) => void;
+  /** Ouvre la messagerie sur une conversation, depuis n'importe quel écran. */
+  openConversation: (withId: string) => void;
+  /** Conversation demandée par un autre écran ; le volet la consomme. */
+  pendingConversation: string | null;
+  clearPendingConversation: () => void;
   markConversationRead: (withId: string) => void;
   unreadCount: number;
 };
@@ -233,6 +238,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
+  // Le volet de messagerie vit dans la coquille : on passe par l'état partagé
+  // plutôt que par une route, qui n'existe plus.
+  const [pendingConversation, setPending] = useState<string | null>(null);
+  const openConversation = useCallback((withId: string) => setPending(withId), []);
+  const clearPendingConversation = useCallback(() => setPending(null), []);
+
   const sendMessage = useCallback((toId: string, text: string) => {
     const msg = {
       id: `msg-${Date.now()}`, from: ME, text: text.trim(),
@@ -275,10 +286,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       ...state, ready, saveProfile, resetAll, toggleAttendance,
       createEvent, addInvite, advanceInvite, addRequest, markConnected,
       inviteToEvent, sendMessage, markConversationRead, unreadCount,
+      openConversation, pendingConversation, clearPendingConversation,
     }),
     [state, ready, saveProfile, resetAll, toggleAttendance, createEvent, addInvite,
      advanceInvite, addRequest, markConnected, inviteToEvent, sendMessage,
-     markConversationRead, unreadCount],
+     markConversationRead, unreadCount, openConversation, pendingConversation,
+     clearPendingConversation],
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

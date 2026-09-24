@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import Avatar from "@/components/Avatar";
 import Guard from "@/components/Guard";
@@ -10,6 +9,7 @@ import { Badge, Button, Card, Empty, SectionTitle, Stat, inputClass } from "@/co
 import { MEMBERS, MEMBERS_BY_ID, buildAdjacency } from "@/lib/members";
 import { introPath, matchesFor, mutualFriends, networkHealth } from "@/lib/matching";
 import { ME, useStore } from "@/lib/store";
+import { DEMO_LINKEDIN } from "@/lib/links";
 
 export default function Page() {
   return (
@@ -186,6 +186,7 @@ function Reseau() {
 
 /** Le panneau qui répond à « comment j'entre en contact avec elle ? ». */
 function IntroPanel({ memberId, onClose }: { memberId: string; onClose: () => void }) {
+  const { openConversation } = useStore();
   const member = MEMBERS_BY_ID[memberId];
   const path = useMemo(() => introPath(ME, memberId), [memberId]);
   const mutuals = useMemo(() => mutualFriends(ME, memberId), [memberId]);
@@ -296,16 +297,16 @@ function IntroPanel({ memberId, onClose }: { memberId: string; onClose: () => vo
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link href={`/messages?avec=${member.id}`}>
-          <Button size="sm">Lui écrire</Button>
-        </Link>
+        <Button size="sm" onClick={() => openConversation(member.id)}>
+          Lui écrire
+        </Button>
         {relay && (
-          <Link href={`/messages?avec=${relay.id}`}>
-            <Button size="sm" variant="rose">Demander à {relay.firstName}</Button>
-          </Link>
+          <Button size="sm" variant="rose" onClick={() => openConversation(relay.id)}>
+            Demander à {relay.firstName}
+          </Button>
         )}
         {member.linkedin && (
-          <a href={`https://${member.linkedin}`} target="_blank" rel="noreferrer">
+          <a href={DEMO_LINKEDIN} target="_blank" rel="noreferrer">
             <Button size="sm" variant="ghost">LinkedIn</Button>
           </a>
         )}
