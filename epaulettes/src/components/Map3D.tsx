@@ -32,6 +32,10 @@ export default function Map3D({
 }) {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MlMap | null>(null);
+  /** Rotation suspendue pendant un geste. */
+  const spinPaused = useRef(false);
+  /** Une transition vers un événement est en cours. */
+  const flying = useRef(false);
   const markers = useRef<Marker[]>([]);
   // Le callback est lu dans les écouteurs des marqueurs : on le garde à jour via un effet,
   // jamais pendant le rendu.
@@ -101,19 +105,32 @@ export default function Map3D({
       }
 
       // Rotation lente : la carte "vit" pendant le pitch.
+      //
+      // `setBearing` interrompt toute animation en cours : appelé à chaque
+      // frame, il tuait les `flyTo` déclenchés au clic sur un événement, et
+      // se battait avec le geste de l'utilisatrice. On le met donc en pause
+      // pendant les transitions et pendant les interactions.
       let raf = 0;
-      let paused = false;
       const spin = () => {
-        if (!paused && map.current) map.current.setBearing(map.current.getBearing() + 0.045);
         raf = requestAnimationFrame(spin);
+        // `isMoving()` couvre déjà les animations en cours et les gestes.
+        if (spinPaused.current || flying.current || m.isMoving()) return;
+        m.setBearing(m.getBearing() + 0.045);
       };
       raf = requestAnimationFrame(spin);
-      const stop = () => { paused = true; };
-      const start = () => { paused = false; };
-      m.on("mousedown", stop);
-      m.on("touchstart", stop);
-      m.on("mouseup", start);
-      m.on("touchend", start);
+
+      const pause = () => { spinPaused.current = true; };
+      const resume = () => { spinPaused.current = false; };
+      // `dragstart`/`dragend` couvrent souris et tactile, contrairement à
+      // mousedown/mouseup qui laissaient la rotation reprendre trop tôt.
+      m.on("dragstart", pause);
+      m.on("zoomstart", pause);
+      m.on("rotatestart", pause);
+      m.on("pitchstart", pause);
+      m.on("dragend", resume);
+      m.on("zoomend", resume);
+      m.on("rotateend", resume);
+      m.on("pitchend", resume);
       m.once("remove", () => cancelAnimationFrame(raf));
     });
 
@@ -201,20 +218,43 @@ export default function Map3D({
         m.jumpTo({ center: ev.coords, zoom: 14.6, pitch: 58 });
         return;
       }
-      m.flyTo({
-        center: ev.coords,
-        zoom: 15.6,
-        pitch: 60,
-        bearing: m.getBearing() + 25,
-        // `curve` et `speed` dessinent la parabole : on monte, on traverse, on se pose.
-        curve: 1.5,
-        speed: 0.9,
+
+      flying.current = true;
+
+      // Décollage : on redresse et on prend de la hauteur, le temps de traverser.
+      m.easeTo({
+        zoom: Math.max(m.getZoom() - 1.6, 12.4),
+        pitch: 32,
+        duration: 620,
+        easing: (t) => t * (2 - t), // sortie douce
         essential: true,
       });
+
+      // Traversée puis descente sur l'événement, avec un quart de tour.
+      window.setTimeout(() => {
+        if (!map.current) return;
+        map.current.flyTo({
+          center: ev.coords,
+          zoom: 16,
+          pitch: 62,
+          bearing: m.getBearing() + 90,
+          curve: 1.7,
+          speed: 0.75,
+          essential: true,
+        });
+      }, 520);
+
+      const done = () => {
+        flying.current = false;
+        m.off("moveend", done);
+      };
+      m.on("moveend", done);
     };
 
     if (m.isStyleLoaded()) fly();
     else m.once("load", fly);
+
+    return () => { flying.current = false; };
   }, [selectedId, events]);
 
   return <div ref={container} className="size-full" />;

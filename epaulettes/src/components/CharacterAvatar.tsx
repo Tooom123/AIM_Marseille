@@ -13,6 +13,12 @@ const INK = "#1A1A1A";
 /** Épaisseurs de trait : varier donne l'impression d'un feutre, pas d'un vecteur. */
 const W = { thick: 2.6, mid: 2.1, thin: 1.6 };
 
+/** Agrandissement de la tête et point autour duquel elle est mise à l'échelle. */
+const HEAD_SCALE = 1.24;
+// Point d'ancrage bas : l'agrandissement pousse la tête vers le bas du cadre,
+// ce qui laisse la place aux volumes de cheveux (afro, crête, chapeau).
+const HEAD_CENTER_Y = 56;
+
 export default function CharacterAvatar({
   config, size = 96, className = "", rounded = true,
 }: {
@@ -44,18 +50,26 @@ export default function CharacterAvatar({
         vectorEffect="non-scaling-stroke"
       >
         <Body top={c.top} />
-        <BackHair style={c.hairStyle} color={c.hairColor} />
-        <Head shape={c.face} skin={c.skin} />
-        <Ears skin={c.skin} hidden={c.hairStyle === "voile"} />
-        {c.blush && <Blush shape={c.face} />}
-        {c.freckles && <Freckles />}
-        <Brows shape={c.brow} color={c.hairColor} />
-        <Eyes shape={c.eyeShape} color={c.eyeColor} />
-        <Nose shape={c.nose} />
-        <Mouth shape={c.mouth} />
-        <FrontHair style={c.hairStyle} color={c.hairColor} />
-        <Glasses kind={c.glasses} />
-        <Accessory kind={c.accessory} />
+
+        {/*
+          Tête volontairement surdimensionnée, façon caricature. On met à
+          l'échelle tout le groupe autour du centre du visage (50, 42) plutôt
+          que de redessiner chaque tracé : traits et cheveux restent alignés.
+        */}
+        <g transform={`translate(50 ${HEAD_CENTER_Y}) scale(${HEAD_SCALE}) translate(-50 ${-HEAD_CENTER_Y})`}>
+          <BackHair style={c.hairStyle} color={c.hairColor} />
+          <Head shape={c.face} skin={c.skin} />
+          <Ears skin={c.skin} hidden={c.hairStyle === "voile"} />
+          {c.blush && <Blush shape={c.face} />}
+          {c.freckles && <Freckles />}
+          <Brows shape={c.brow} color={c.hairColor} />
+          <Eyes shape={c.eyeShape} color={c.eyeColor} />
+          <Nose shape={c.nose} />
+          <Mouth shape={c.mouth} />
+          <FrontHair style={c.hairStyle} color={c.hairColor} />
+          <Glasses kind={c.glasses} />
+          <Accessory kind={c.accessory} />
+        </g>
       </g>
     </svg>
   );
@@ -67,15 +81,15 @@ function Body({ top }: { top: string }) {
   return (
     <g>
       {/* Cou */}
-      <path d="M44 63c0 5 .3 8 .3 10h11.4c0-2 .3-5 .3-10z" fill="#00000018" stroke="none" />
+      <path d="M43 76c0 4 .3 6 .3 8h13.4c0-2 .3-4 .3-8z" fill="#00000018" stroke="none" />
       {/* Épaules, tracé un peu tremblant */}
       <path
-        d="M50 72c-13 .4-23 7-26.5 17.5C22.2 93 21.8 97 21.6 100h56.8c-.2-3-.7-7-1.9-10.5C73 79 63 72.4 50 72z"
+        d="M50 84c-12 .4-21 6-24.5 14.5-.6 1.6-.9 1.5-1 1.5h51c-.2 0-.4.1-1-1.5C71 90 62 84.4 50 84z"
         fill={top}
         strokeWidth={W.thick}
       />
       {/* Encolure */}
-      <path d="M42 74.5c2.6 3.4 5 4.8 8 4.8s5.4-1.4 8-4.8" fill="none" strokeWidth={W.thin} />
+      <path d="M43.5 85.5c2.2 2.8 4.2 4 6.5 4s4.3-1.2 6.5-4" fill="none" strokeWidth={W.thin} />
     </g>
   );
 }
