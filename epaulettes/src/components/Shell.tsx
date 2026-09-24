@@ -25,15 +25,20 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-40 border-b border-line bg-surface/85 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4 sm:px-6">
+        <div className="relative mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4 sm:px-6">
           <Link href="/accueil" className="flex items-center gap-2.5">
             <Logo />
-            <span className="hidden text-[15px] font-semibold tracking-tight sm:block">
+            <span className="hidden text-[15px] font-semibold tracking-tight sm:block md:hidden lg:block">
               Les Épaulettes
             </span>
           </Link>
 
-          <nav className="ml-4 hidden items-center gap-1 md:flex">
+          {/*
+            Centrage absolu : la barre reste au milieu de l'en-tête quelle que
+            soit la largeur du logo à gauche et des actions à droite. En flux
+            normal, elle se décalerait dès que la pastille « Prochain » apparaît.
+          */}
+          <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex">
             {NAV.map(({ href, label, icon: Icon }) => {
               const active = pathname === href;
               return (
