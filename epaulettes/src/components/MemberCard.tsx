@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Avatar from "./Avatar";
 import { Badge, Button } from "./ui";
@@ -14,21 +15,17 @@ const KIND_LABEL: Record<MatchReason["kind"], { text: string; tone: "turquoise" 
 
 export default function MemberCard({ match }: { match: MatchReason }) {
   const { member, why, intro, kind } = match;
-  const { connected, markConnected } = useStore();
+  const { connected, sendMessage } = useStore();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [text, setText] = useState(intro);
   const isConnected = connected.includes(member.id);
   const label = KIND_LABEL[kind];
 
-  async function copyIntro() {
-    try {
-      await navigator.clipboard.writeText(intro);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
-    markConnected(member.id);
+  /** Envoie le message d'intro et ouvre la conversation : le lien est vraiment créé. */
+  function sendIntro() {
+    sendMessage(member.id, text);
+    router.push(`/messages?avec=${member.id}`);
   }
 
   return (
@@ -64,21 +61,31 @@ export default function MemberCard({ match }: { match: MatchReason }) {
 
       <div className="mt-auto flex items-center gap-2 pt-4">
         <Button size="sm" variant={isConnected ? "outline" : "primary"} onClick={() => setOpen((o) => !o)}>
-          {isConnected ? "Message envoyé" : "Message d'intro prêt"}
+          {isConnected ? "Déjà contactée" : "Message d'intro prêt"}
         </Button>
-        <Button size="sm" variant="ghost" onClick={() => setOpen((o) => !o)}>
-          {open ? "Masquer" : "Voir"}
-        </Button>
+        {member.linkedin && (
+          <a href={`https://${member.linkedin}`} target="_blank" rel="noreferrer"
+            className="rounded-lg px-2 py-1 text-xs font-medium text-ink-soft transition hover:text-[#0E7C8C]">
+            LinkedIn
+          </a>
+        )}
       </div>
 
       {open && (
         <div className="mt-3 animate-fade-up space-y-2.5">
-          <div className="rounded-xl border border-line bg-bg p-3 text-sm leading-relaxed">{intro}</div>
-          <div className="flex items-center gap-2">
-            <Button size="sm" variant="rose" onClick={copyIntro}>
-              {copied ? "Copié" : "Copier et envoyer"}
+          <textarea
+            rows={4}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            className="w-full rounded-xl border border-line bg-bg p-3 text-sm leading-relaxed outline-none focus:border-turquoise focus:ring-2 focus:ring-turquoise/20"
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" variant="rose" onClick={sendIntro} disabled={!text.trim()}>
+              Envoyer le message
             </Button>
-            <span className="text-xs text-ink-soft">Rédigé à partir de vos deux profils.</span>
+            <span className="text-xs text-ink-soft">
+              Rédigé à partir de vos deux profils — modifiable.
+            </span>
           </div>
         </div>
       )}

@@ -93,3 +93,17 @@ export type Profile = {
   avatar: AvatarConfig;
   onboarded: boolean;
 };
+
+export type Message = {
+  id: string;
+  from: MemberId;
+  text: string;
+  at: string;
+  read: boolean;
+};
+
+export type Conversation = {
+  /** L'autre membre : une conversation est toujours entre vous et elle. */
+  withId: MemberId;
+  messages: Message[];
+};

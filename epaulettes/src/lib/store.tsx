@@ -5,9 +5,12 @@ import {
 } from "react";
 import { DEFAULT_AVATAR } from "./avatarOptions";
 import { EVENTS } from "./events";
-import type { Epaulette, HelpRequest, Invite, Profile } from "./types";
+import type { Conversation, Epaulette, HelpRequest, Invite, Profile } from "./types";
 
 const KEY = "epaulettes.v1";
+
+/** L'utilisatrice courante est "me" : elle n'est pas dans MEMBERS, elle s'ajoute via l'onboarding. */
+export const ME = "me";
 
 const EMPTY_PROFILE: Profile = {
   firstName: "", lastName: "", job: "", company: "", age: null, linkedin: "",
@@ -20,6 +23,7 @@ type State = {
   events: Epaulette[];
   invites: Invite[];
   requests: HelpRequest[];
+  conversations: Conversation[];
   /** Mises en relation déjà lancées, pour afficher un état "contactée". */
   connected: string[];
 };
@@ -47,7 +51,32 @@ const INITIAL: State = {
     },
   ],
   connected: [],
+  conversations: [
+    {
+      withId: "sonia",
+      messages: [
+        { id: "m1", from: "sonia", at: hoursAgo(26),  read: true,
+          text: "Bonjour ! On s'est croisées au dernier apéro. Vous cherchiez une identité visuelle ?" },
+        { id: "m2", from: ME, at: hoursAgo(25), read: true,
+          text: "Oui, exactement. J'aimerais bien voir votre travail." },
+        { id: "m3", from: "sonia", at: hoursAgo(3), read: false,
+          text: "Je vous envoie trois cas clients cette semaine. On se cale un café mardi ?" },
+      ],
+    },
+    {
+      withId: "therese",
+      messages: [
+        { id: "m4", from: "therese", at: hoursAgo(50), read: false,
+          text: "J'ai vu que vous cherchiez à structurer une offre de formation. Je suis passée par la certification Qualiopi l'an dernier, je peux vous faire gagner des semaines." },
+      ],
+    },
+  ],
 };
+
+/** Horodatage relatif, pour que la démo paraisse vivante quel que soit le jour. */
+function hoursAgo(h: number): string {
+  return new Date(Date.now() - h * 36e5).toISOString();
+}
 
 type Ctx = State & {
   ready: boolean;
@@ -59,12 +88,12 @@ type Ctx = State & {
   advanceInvite: (id: string) => void;
   addRequest: (text: string, routedTo: string[]) => HelpRequest;
   markConnected: (memberId: string) => void;
+  sendMessage: (toId: string, text: string) => void;
+  markConversationRead: (withId: string) => void;
+  unreadCount: number;
 };
 
 const StoreContext = createContext<Ctx | null>(null);
-
-/** L'utilisatrice courante est "me" : elle n'est pas dans MEMBERS, elle s'ajoute via l'onboarding. */
-export const ME = "me";
 
 /** Lecture du stockage local. Tolère un stockage absent, bloqué ou corrompu. */
 function loadState(): State {
@@ -187,15 +216,59 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
+  const sendMessage = useCallback((toId: string, text: string) => {
+    const msg = {
+      id: `msg-${Date.now()}`, from: ME, text: text.trim(),
+      at: new Date().toISOString(), read: true,
+    };
+    setState((s) => {
+      const existing = s.conversations.find((c) => c.withId === toId);
+      const conversations = existing
+        ? s.conversations.map((c) =>
+            c.withId === toId ? { ...c, messages: [...c.messages, msg] } : c,
+          )
+        : [...s.conversations, { withId: toId, messages: [msg] }];
+      // La conversation la plus récente remonte en tête.
+      return {
+        ...s,
+        conversations: [...conversations].sort((a, b) => lastAt(b) - lastAt(a)),
+        connected: s.connected.includes(toId) ? s.connected : [...s.connected, toId],
+      };
+    });
+  }, []);
+
+  const markConversationRead = useCallback((withId: string) => {
+    setState((s) => ({
+      ...s,
+      conversations: s.conversations.map((c) =>
+        c.withId !== withId
+          ? c
+          : { ...c, messages: c.messages.map((m) => (m.read ? m : { ...m, read: true })) },
+      ),
+    }));
+  }, []);
+
+  const unreadCount = state.conversations.reduce(
+    (n, c) => n + c.messages.filter((m) => !m.read && m.from !== ME).length,
+    0,
+  );
+
   const value = useMemo<Ctx>(
     () => ({
       ...state, ready, saveProfile, resetAll, toggleAttendance,
       createEvent, addInvite, advanceInvite, addRequest, markConnected,
+      sendMessage, markConversationRead, unreadCount,
     }),
-    [state, ready, saveProfile, resetAll, toggleAttendance, createEvent, addInvite, advanceInvite, addRequest, markConnected],
+    [state, ready, saveProfile, resetAll, toggleAttendance, createEvent, addInvite,
+     advanceInvite, addRequest, markConnected, sendMessage, markConversationRead, unreadCount],
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
+}
+
+function lastAt(c: Conversation): number {
+  const last = c.messages[c.messages.length - 1];
+  return last ? +new Date(last.at) : 0;
 }
 
 export function useStore(): Ctx {

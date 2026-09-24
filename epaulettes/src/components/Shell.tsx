@@ -11,12 +11,13 @@ const NAV = [
   { href: "/carte", label: "Carte", icon: MapIcon },
   { href: "/agenda", label: "Agenda", icon: CalIcon },
   { href: "/reseau", label: "Réseau", icon: UsersIcon },
+  { href: "/messages", label: "Messages", icon: ChatIcon },
   { href: "/marrainage", label: "Marrainage", icon: GiftIcon },
 ];
 
 export default function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { profile, events } = useStore();
+  const { profile, events, unreadCount } = useStore();
   const nextEvent = [...events]
     .filter((e) => new Date(e.date) > new Date() && e.attendees.includes(ME))
     .sort((a, b) => +new Date(a.date) - +new Date(b.date))[0];
@@ -39,12 +40,17 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition ${
+                  className={`relative flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition ${
                     active ? "bg-turquoise/14 text-[#0E7C8C]" : "text-ink-soft hover:bg-cream hover:text-ink"
                   }`}
                 >
                   <Icon className="size-4" />
                   {label}
+                  {href === "/messages" && unreadCount > 0 && (
+                    <span className="grid size-4 place-items-center rounded-full bg-rose text-[10px] font-bold text-white">
+                      {unreadCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -84,12 +90,17 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               <Link
                 key={href}
                 href={href}
-                className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition ${
+                className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition ${
                   active ? "text-[#0E7C8C]" : "text-ink-soft"
                 }`}
               >
                 <Icon className={`size-5 ${active ? "" : "opacity-70"}`} />
                 {label}
+                {href === "/messages" && unreadCount > 0 && (
+                  <span className="absolute right-[22%] top-1 grid size-4 place-items-center rounded-full bg-rose text-[9px] font-bold text-white">
+                    {unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -144,6 +155,13 @@ function UsersIcon({ className }: IconProps) {
       <circle cx="9" cy="8" r="3.2" />
       <path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" strokeLinecap="round" />
       <path d="M16 5.5a3.2 3.2 0 0 1 0 6M18 20c0-2.6-1-4.4-2.5-5.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+function ChatIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill={base} stroke="currentColor" strokeWidth="1.8" className={className}>
+      <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 12z" strokeLinejoin="round" />
     </svg>
   );
 }
