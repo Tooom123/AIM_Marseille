@@ -38,6 +38,16 @@ UI moderne, simple à prendre en main. Code couleur de l'entreprise :
 - **Carte des liens** : graphe du réseau, membres isolées en rose.
 - **Priorités d'animation** : qui décroche, donc qui relancer — l'écran qui montre le ROI à l'association.
 
+## Ajouts de la seconde passe
+
+- **Avatar type Mii/Sims** : carnation, forme du visage, 10 coupes, couleurs de cheveux et d'yeux, sourcils, bouche, lunettes, accessoires, taches de rousseur, fond. Bouton « au hasard ». L'import photo reste possible, et modifiable depuis le profil.
+- **Messagerie interne** avec compteur de non-lus ; le message d'intro d'une carte membre devient un vrai message envoyé.
+- **Lien LinkedIn** sur le profil et sur les 22 membres.
+- **Invitations à un événement** réservées à l'organisatrice ; chaque invitée reçoit un message.
+- **Calendrier** : export `.ics`, lien Google Agenda, et surtout **abonnement `webcal://`** — l'agenda relit le flux, donc les nouveaux événements arrivent sans rien refaire.
+- **Logo officiel** en header et favicon ; largeur de l'app portée à 1600 px.
+- Âge rendu explicitement facultatif ; aperçu « personnes qui vous ressemblent » retiré de l'onboarding.
+
 ## Pistes non faites
 
 - Carte de visite publique partageable par membre (vecteur d'adoption via le WhatsApp existant).

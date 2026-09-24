@@ -18,8 +18,8 @@ est conservé dans le `localStorage` du navigateur.
 
 ## Parcours de démo (90 s)
 
-1. **`/bienvenue`** — l'onboarding conversationnel. Dès l'étape « compétences »,
-   un encart affiche les premières rencontres suggérées : le profil sert immédiatement.
+1. **`/bienvenue`** — l'onboarding conversationnel. La dernière étape compose
+   l'avatar (carnation, coupe, yeux, lunettes, accessoires…) ou importe une photo.
 2. **`/accueil`** — les rencontres de la semaine, chacune avec sa justification et
    son message d'intro prêt à copier. Plus bas, taper un besoin dans « Demander un
    coup d'épaule » : les trois bonnes membres apparaissent pendant la frappe.
@@ -29,7 +29,9 @@ est conservé dans le `localStorage` du navigateur.
 4. **`/agenda`** — le pré-apéro visio d'intégration, avec le déroulé des 30 minutes.
 5. **`/reseau` → Carte des liens** — le graphe, les membres isolées en rose, et les
    priorités d'animation.
-6. **`/marrainage`** — envoyer une invitation génère un code ; faire avancer son statut
+6. **`/messages`** — la messagerie interne. Le message d'intro d'une carte membre
+   est modifiable puis envoyé, et ouvre la conversation.
+7. **`/marrainage`** — envoyer une invitation génère un code ; faire avancer son statut
    fait monter le palier de remise.
 
 Pour repartir de zéro : **Profil → Réinitialiser la démo**.
@@ -38,13 +40,17 @@ Pour repartir de zéro : **Profil → Réinitialiser la démo**.
 
 ```
 src/
-├── app/            # une page par écran (App Router)
-├── components/     # Shell, Map3D, NetworkGraph, MemberCard, primitives UI
+├── app/
+│   ├── …                 # une page par écran (App Router)
+│   └── api/calendrier/   # flux iCalendar auquel un agenda peut s'abonner
+├── components/           # Shell, Map3D, NetworkGraph, AvatarEditor, CharacterAvatar…
 └── lib/
-    ├── members.ts  # 22 profils synthétiques géolocalisés
-    ├── events.ts   # événements, ancrés sur la date du jour
-    ├── matching.ts # scoring, routage des demandes, placement de tables
-    └── store.tsx   # état applicatif + persistance localStorage
+    ├── members.ts        # 22 profils synthétiques géolocalisés
+    ├── events.ts         # événements, ancrés sur la date du jour
+    ├── matching.ts       # scoring, routage des demandes, placement de tables
+    ├── avatarOptions.ts  # choix d'apparence et génération déterministe
+    ├── ics.ts            # génération iCalendar
+    └── store.tsx         # état applicatif + persistance localStorage
 ```
 
 ## Choix techniques
@@ -57,6 +63,10 @@ src/
 - **Matching déterministe** — recouvrement de tokens entre besoins, offres et
   compétences, plus un bonus « pont » pour les liens modérément faibles. Aucun appel
   réseau : rien ne peut tomber en panne pendant le pitch.
+- **Avatars en SVG** — aucun service externe, aucune image à charger. Une membre
+  sans photo reçoit un personnage dérivé de son identifiant, jamais un trou dans l'UI.
+- **Calendrier** — `webcal://` fait que l'agenda *s'abonne* au flux au lieu d'en
+  télécharger une copie figée : un événement ajouté apparaît ensuite tout seul.
 
 ## Données
 
