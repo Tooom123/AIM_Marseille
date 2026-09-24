@@ -6,7 +6,9 @@ import Avatar from "@/components/Avatar";
 import AvatarEditor from "@/components/AvatarEditor";
 import Guard from "@/components/Guard";
 import { Badge, Button, Card, Field, SectionTitle, TagInput, inputClass } from "@/components/ui";
+import ZodiacBadge from "@/components/ZodiacBadge";
 import type { AvatarConfig } from "@/lib/avatarOptions";
+import { ZODIAC_SIGNS, ZODIAC_SYMBOL, signFromDate, type ZodiacSign } from "@/lib/zodiac";
 import { ME, useStore } from "@/lib/store";
 import {
   HOBBY_SUGGESTIONS, NEED_SUGGESTIONS, NEIGHBORHOODS, OFFER_SUGGESTIONS, SKILL_SUGGESTIONS,
@@ -68,6 +70,11 @@ function Profil() {
             <p className="text-sm text-ink-soft">{profile.job}</p>
             {profile.company && <p className="text-sm text-ink-soft">{profile.company}</p>}
             <p className="mt-1 text-xs text-ink-soft">{profile.neighborhood}</p>
+            {profile.zodiac && (
+              <div className="mt-2 flex justify-center">
+                <ZodiacBadge sign={profile.zodiac} withTrait />
+              </div>
+            )}
             {profile.bio && <p className="mt-3 text-sm">{profile.bio}</p>}
 
             <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -179,6 +186,22 @@ function Profil() {
                 <input className={inputClass} value={profile.linkedin}
                   placeholder="linkedin.com/in/votre-profil"
                   onChange={(e) => update("linkedin", e.target.value)} />
+              </Field>
+              <Field label="Date de naissance (facultatif)" hint="Renseigne votre signe automatiquement.">
+                <input type="date" className={inputClass} value={profile.birthday}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    saveProfile({ birthday: v, ...(v ? { zodiac: signFromDate(v) } : {}) });
+                  }} />
+              </Field>
+              <Field label="Signe astrologique (facultatif)">
+                <select className={inputClass} value={profile.zodiac ?? ""}
+                  onChange={(e) => update("zodiac", (e.target.value || null) as ZodiacSign | null)}>
+                  <option value="">Ne pas indiquer</option>
+                  {ZODIAC_SIGNS.map((z) => (
+                    <option key={z} value={z}>{ZODIAC_SYMBOL[z]} {z}</option>
+                  ))}
+                </select>
               </Field>
             </div>
             <div className="mt-4">

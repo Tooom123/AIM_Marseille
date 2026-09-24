@@ -1,10 +1,12 @@
 import type { AvatarConfig } from "./avatarOptions";
+import type { ZodiacSign } from "./zodiac";
 
 export type MemberId = string;
 
 export type Member = {
   id: MemberId;
   linkedin?: string;
+  zodiac?: ZodiacSign;
   firstName: string;
   lastName: string;
   job: string;
@@ -80,6 +82,10 @@ export type Profile = {
   company: string;
   /** Facultatif : l'âge n'est jamais requis pour avancer. */
   age: number | null;
+  /** Date de naissance ISO (`YYYY-MM-DD`), facultative : sert à déduire le signe. */
+  birthday: string;
+  /** Saisi directement, ou déduit de la date de naissance. */
+  zodiac: ZodiacSign | null;
   linkedin: string;
   neighborhood: string;
   skills: string[];

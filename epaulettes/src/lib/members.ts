@@ -8,6 +8,7 @@ export const MEMBERS: Member[] = [
   {
     id: "sonia", firstName: "Sonia", lastName: "Berthier", job: "Directrice artistique",
     company: "Studio Mistral", age: 38, neighborhood: "Le Panier", coords: [5.3689, 43.2989],
+    zodiac: "Cancer",
     linkedin: "linkedin.com/in/sonia-berthier",
     joinedAt: "2023-02-14",
     skills: ["identité visuelle", "print", "direction artistique", "packaging"],
@@ -20,6 +21,7 @@ export const MEMBERS: Member[] = [
   {
     id: "leila", firstName: "Leïla", lastName: "Haddad", job: "Avocate en droit des affaires",
     company: "Cabinet Haddad", age: 44, neighborhood: "Castellane", coords: [5.3832, 43.2861],
+    zodiac: "Sagittaire",
     linkedin: "linkedin.com/in/leila-haddad",
     joinedAt: "2022-09-06",
     skills: ["droit des sociétés", "contrats", "levée de fonds", "propriété intellectuelle"],
@@ -32,6 +34,7 @@ export const MEMBERS: Member[] = [
   {
     id: "fatima", firstName: "Fatima", lastName: "Ould-Ali", job: "Développeuse web freelance",
     company: "Indépendante", age: 29, neighborhood: "La Plaine", coords: [5.3861, 43.2941],
+    zodiac: "Taureau",
     linkedin: "linkedin.com/in/fatima-ould-ali",
     joinedAt: "2024-01-20",
     skills: ["React", "Next.js", "Node", "accessibilité"],
@@ -44,6 +47,7 @@ export const MEMBERS: Member[] = [
   {
     id: "claire", firstName: "Claire", lastName: "Vasseur", job: "Consultante RSE",
     company: "Vasseur & Co", age: 41, neighborhood: "Vieux-Port", coords: [5.3740, 43.2951],
+    zodiac: "Balance",
     linkedin: "linkedin.com/in/claire-vasseur",
     joinedAt: "2022-11-03",
     skills: ["bilan carbone", "reporting CSRD", "stratégie RSE", "formation"],
@@ -56,6 +60,7 @@ export const MEMBERS: Member[] = [
   {
     id: "nadia", firstName: "Nadia", lastName: "Benali", job: "Fondatrice traiteur",
     company: "Table Nomade", age: 35, neighborhood: "Noailles", coords: [5.3792, 43.2952],
+    zodiac: "Poissons",
     linkedin: "linkedin.com/in/nadia-benali",
     joinedAt: "2023-06-11",
     skills: ["traiteur événementiel", "cuisine méditerranéenne", "logistique"],
@@ -68,6 +73,7 @@ export const MEMBERS: Member[] = [
   {
     id: "ines", firstName: "Inès", lastName: "Moretti", job: "Photographe",
     company: "Studio Inès M.", age: 32, neighborhood: "Endoume", coords: [5.3549, 43.2856],
+    zodiac: "Lion",
     linkedin: "linkedin.com/in/ines-moretti",
     joinedAt: "2023-09-28",
     skills: ["portrait corporate", "photo culinaire", "retouche", "vidéo courte"],
@@ -80,6 +86,7 @@ export const MEMBERS: Member[] = [
   {
     id: "amelie", firstName: "Amélie", lastName: "Rossi", job: "Formatrice en communication",
     company: "Prendre la parole", age: 47, neighborhood: "Longchamp", coords: [5.3936, 43.3036],
+    zodiac: "Capricorne",
     linkedin: "linkedin.com/in/amelie-rossi",
     joinedAt: "2022-04-15",
     skills: ["prise de parole", "média training", "pitch", "storytelling"],
@@ -92,6 +99,7 @@ export const MEMBERS: Member[] = [
   {
     id: "beatrice", firstName: "Béatrice", lastName: "Lorenzi", job: "Experte-comptable",
     company: "Cabinet Lorenzi", age: 52, neighborhood: "Prado", coords: [5.3906, 43.2724],
+    zodiac: "Gémeaux",
     linkedin: "linkedin.com/in/beatrice-lorenzi",
     joinedAt: "2021-10-02",
     skills: ["comptabilité", "prévisionnel", "fiscalité", "subventions"],
@@ -104,6 +112,7 @@ export const MEMBERS: Member[] = [
   {
     id: "sophie", firstName: "Sophie", lastName: "Da Costa", job: "Architecte d'intérieur",
     company: "Atelier SDC", age: 39, neighborhood: "Roucas Blanc", coords: [5.3627, 43.2760],
+    zodiac: "Scorpion",
     linkedin: "linkedin.com/in/sophie-da-costa",
     joinedAt: "2023-03-22",
     skills: ["agencement", "3D", "suivi de chantier", "mobilier sur mesure"],
@@ -116,6 +125,7 @@ export const MEMBERS: Member[] = [
   {
     id: "karine", firstName: "Karine", lastName: "Fabre", job: "Coach professionnelle",
     company: "Cap sur soi", age: 49, neighborhood: "Vauban", coords: [5.3703, 43.2861],
+    zodiac: "Bélier",
     linkedin: "linkedin.com/in/karine-fabre",
     joinedAt: "2022-01-18",
     skills: ["coaching de dirigeantes", "gestion du stress", "transition pro"],
@@ -128,6 +138,7 @@ export const MEMBERS: Member[] = [
   {
     id: "yasmine", firstName: "Yasmine", lastName: "Kaddour", job: "Consultante IA",
     company: "Kaddour Data", age: 31, neighborhood: "Joliette", coords: [5.3644, 43.3062],
+    zodiac: "Vierge",
     linkedin: "linkedin.com/in/yasmine-kaddour",
     joinedAt: "2024-05-07",
     skills: ["automatisation", "LLM", "data", "no-code"],
@@ -140,6 +151,7 @@ export const MEMBERS: Member[] = [
   {
     id: "helene", firstName: "Hélène", lastName: "Marchand", job: "Attachée de presse",
     company: "Marchand RP", age: 43, neighborhood: "Notre-Dame-du-Mont", coords: [5.3843, 43.2913],
+    zodiac: "Verseau",
     linkedin: "linkedin.com/in/helene-marchand",
     joinedAt: "2023-01-09",
     skills: ["relations presse", "réseaux sociaux", "communiqués"],
@@ -152,6 +164,7 @@ export const MEMBERS: Member[] = [
   {
     id: "maud", firstName: "Maud", lastName: "Peretti", job: "Fondatrice cosmétique",
     company: "Calanque Beauty", age: 36, neighborhood: "Bonneveine", coords: [5.3775, 43.2513],
+    zodiac: "Cancer",
     linkedin: "linkedin.com/in/maud-peretti",
     joinedAt: "2023-11-14",
     skills: ["formulation", "sourcing", "retail", "e-commerce"],
@@ -164,6 +177,7 @@ export const MEMBERS: Member[] = [
   {
     id: "maya", firstName: "Maya", lastName: "Sissoko", job: "Cheffe de projet événementiel",
     company: "Sissoko Events", age: 33, neighborhood: "Cours Julien", coords: [5.3830, 43.2925],
+    zodiac: "Sagittaire",
     linkedin: "linkedin.com/in/maya-sissoko",
     joinedAt: "2024-02-26",
     skills: ["production événementielle", "régie", "budget", "scénographie"],
@@ -176,6 +190,7 @@ export const MEMBERS: Member[] = [
   {
     id: "camille", firstName: "Camille", lastName: "Aubert", job: "Traductrice technique",
     company: "Aubert Traductions", age: 45, neighborhood: "Saint-Victor", coords: [5.3641, 43.2907],
+    zodiac: "Taureau",
     linkedin: "linkedin.com/in/camille-aubert",
     joinedAt: "2022-07-19",
     skills: ["traduction EN/FR", "localisation", "rédaction technique"],
@@ -188,6 +203,7 @@ export const MEMBERS: Member[] = [
   {
     id: "rachida", firstName: "Rachida", lastName: "Ziani", job: "Consultante financière",
     company: "RZ Advisory", age: 40, neighborhood: "Euroméditerranée", coords: [5.3596, 43.3121],
+    zodiac: "Balance",
     linkedin: "linkedin.com/in/rachida-ziani",
     joinedAt: "2023-05-30",
     skills: ["levée de fonds", "modélisation", "due diligence"],
@@ -200,6 +216,7 @@ export const MEMBERS: Member[] = [
   {
     id: "elodie", firstName: "Élodie", lastName: "Garnier", job: "UX designer",
     company: "Freelance", age: 30, neighborhood: "La Friche", coords: [5.3843, 43.3114],
+    zodiac: "Poissons",
     linkedin: "linkedin.com/in/elodie-garnier",
     joinedAt: "2024-04-11",
     skills: ["UX research", "prototypage", "design system", "Figma"],
@@ -212,6 +229,7 @@ export const MEMBERS: Member[] = [
   {
     id: "valerie", firstName: "Valérie", lastName: "Nguyen", job: "Recruteuse indépendante",
     company: "Nguyen Talents", age: 46, neighborhood: "Baille", coords: [5.3919, 43.2875],
+    zodiac: "Lion",
     linkedin: "linkedin.com/in/valerie-nguyen",
     joinedAt: "2022-03-08",
     skills: ["recrutement cadres", "marque employeur", "sourcing"],
@@ -224,6 +242,7 @@ export const MEMBERS: Member[] = [
   {
     id: "assia", firstName: "Assia", lastName: "Meziane", job: "Fondatrice épicerie fine",
     company: "Le Comptoir d'Assia", age: 37, neighborhood: "Estaque", coords: [5.3270, 43.3601],
+    zodiac: "Capricorne",
     linkedin: "linkedin.com/in/assia-meziane",
     joinedAt: "2023-08-21",
     skills: ["retail", "sourcing producteurs", "vente", "animation boutique"],
@@ -236,6 +255,7 @@ export const MEMBERS: Member[] = [
   {
     id: "juliette", firstName: "Juliette", lastName: "Bonnet", job: "Naturopathe",
     company: "Cabinet Bonnet", age: 34, neighborhood: "Saint-Barnabé", coords: [5.4231, 43.3005],
+    zodiac: "Gémeaux",
     linkedin: "linkedin.com/in/juliette-bonnet",
     joinedAt: "2024-06-18",
     skills: ["nutrition", "accompagnement stress", "ateliers santé"],
@@ -248,6 +268,7 @@ export const MEMBERS: Member[] = [
   {
     id: "nour", firstName: "Nour", lastName: "El Amrani", job: "Cheffe de produit",
     company: "Scale-up SaaS", age: 28, neighborhood: "Vieux-Port", coords: [5.3711, 43.2938],
+    zodiac: "Scorpion",
     linkedin: "linkedin.com/in/nour-el-amrani",
     joinedAt: "2024-07-02",
     skills: ["product management", "roadmap", "analytics", "growth"],
@@ -260,6 +281,7 @@ export const MEMBERS: Member[] = [
   {
     id: "therese", firstName: "Thérèse", lastName: "Kouassi", job: "Consultante formation",
     company: "TK Formation", age: 51, neighborhood: "Castellane", coords: [5.3856, 43.2848],
+    zodiac: "Bélier",
     linkedin: "linkedin.com/in/therese-kouassi",
     joinedAt: "2021-09-15",
     skills: ["ingénierie pédagogique", "Qualiopi", "animation", "e-learning"],

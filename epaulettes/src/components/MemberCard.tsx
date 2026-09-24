@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Avatar from "./Avatar";
 import { Badge, Button } from "./ui";
+import ZodiacBadge from "./ZodiacBadge";
 import type { MatchReason } from "@/lib/types";
 import { useStore } from "@/lib/store";
 
@@ -41,7 +42,10 @@ export default function MemberCard({ match }: { match: MatchReason }) {
           <p className="text-sm text-ink-soft">
             {member.job} · {member.company}
           </p>
-          <p className="mt-0.5 text-xs text-ink-soft">{member.neighborhood}</p>
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+            <span className="text-xs text-ink-soft">{member.neighborhood}</span>
+            {member.zodiac && <ZodiacBadge sign={member.zodiac} size="sm" />}
+          </div>
         </div>
         <Badge tone={label.tone} className="hidden shrink-0 sm:inline-flex">{label.text}</Badge>
       </div>

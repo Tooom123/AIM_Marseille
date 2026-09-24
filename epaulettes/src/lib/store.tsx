@@ -3,7 +3,7 @@
 import {
   createContext, useCallback, useContext, useEffect, useMemo, useState,
 } from "react";
-import { DEFAULT_AVATAR } from "./avatarOptions";
+import { DEFAULT_AVATAR, sanitizeAvatar } from "./avatarOptions";
 import { EVENTS } from "./events";
 import type { Conversation, Epaulette, HelpRequest, Invite, Profile } from "./types";
 
@@ -14,6 +14,7 @@ export const ME = "me";
 
 const EMPTY_PROFILE: Profile = {
   firstName: "", lastName: "", job: "", company: "", age: null, linkedin: "",
+  birthday: "", zodiac: null,
   neighborhood: "", skills: [], offers: [], needs: [], hobbies: [],
   bio: "", avatarSeed: "epaulette", avatar: DEFAULT_AVATAR, onboarded: false,
 };
@@ -108,7 +109,7 @@ function loadState(): State {
       profile: {
         ...EMPTY_PROFILE,
         ...(parsed.profile ?? {}),
-        avatar: { ...DEFAULT_AVATAR, ...(parsed.profile?.avatar ?? {}) },
+        avatar: sanitizeAvatar(parsed.profile?.avatar),
       },
       // Les événements de base viennent du code : on ne garde que ceux créés par l'utilisatrice.
       events: [...EVENTS, ...(parsed.events ?? []).filter((e) => e.createdByUser)],

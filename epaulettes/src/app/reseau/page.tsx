@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Avatar from "@/components/Avatar";
 import Guard from "@/components/Guard";
 import MemberCard from "@/components/MemberCard";
+import ZodiacBadge from "@/components/ZodiacBadge";
 import NetworkGraph from "@/components/NetworkGraph";
 import { Badge, Card, Empty, SectionTitle, Stat, inputClass } from "@/components/ui";
 import { MEMBERS } from "@/lib/members";
@@ -112,6 +113,7 @@ function Reseau() {
                 <div className="mt-2.5 flex flex-wrap gap-1.5">
                   {m.mentor && <Badge tone="rose">Marraine</Badge>}
                   {m.isNewcomer && <Badge tone="turquoise">Nouvelle</Badge>}
+                  {m.zodiac && <ZodiacBadge sign={m.zodiac} size="sm" />}
                   {m.skills.slice(0, 2).map((s) => (
                     <span key={s} className="rounded-lg bg-cream px-2 py-0.5 text-xs text-ink-soft">{s}</span>
                   ))}

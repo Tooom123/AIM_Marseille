@@ -6,6 +6,8 @@ import AvatarEditor from "@/components/AvatarEditor";
 import { Logo } from "@/components/Shell";
 import { Button, Field, TagInput, inputClass } from "@/components/ui";
 import { DEFAULT_AVATAR, type AvatarConfig } from "@/lib/avatarOptions";
+import ZodiacBadge from "@/components/ZodiacBadge";
+import { ZODIAC_SIGNS, ZODIAC_SYMBOL, signFromDate, type ZodiacSign } from "@/lib/zodiac";
 import { useStore } from "@/lib/store";
 import {
   HOBBY_SUGGESTIONS, NEED_SUGGESTIONS, NEIGHBORHOODS, OFFER_SUGGESTIONS, SKILL_SUGGESTIONS,
@@ -31,6 +33,8 @@ export default function Bienvenue() {
     job: profile.job, company: profile.company,
     age: profile.age ? String(profile.age) : "",
     linkedin: profile.linkedin,
+    birthday: profile.birthday,
+    zodiac: profile.zodiac as ZodiacSign | null,
     neighborhood: profile.neighborhood || "Vieux-Port",
     skills: profile.skills, offers: profile.offers,
     needs: profile.needs, hobbies: profile.hobbies,
@@ -53,6 +57,12 @@ export default function Bienvenue() {
     }
   }, [current.id, draft]);
 
+  /** Saisir une date renseigne le signe ; on peut aussi le choisir seul. */
+  function setBirthday(value: string) {
+    const derived = value ? signFromDate(value) : null;
+    setDraft((d) => ({ ...d, birthday: value, zodiac: derived ?? d.zodiac }));
+  }
+
   function finish() {
     saveProfile({
       firstName: draft.firstName.trim(),
@@ -61,6 +71,8 @@ export default function Bienvenue() {
       company: draft.company.trim(),
       age: draft.age ? Number(draft.age) : null,
       linkedin: draft.linkedin.trim(),
+      birthday: draft.birthday,
+      zodiac: draft.zodiac,
       neighborhood: draft.neighborhood,
       skills: draft.skills, offers: draft.offers, needs: draft.needs, hobbies: draft.hobbies,
       bio: draft.bio.trim(),
@@ -201,6 +213,37 @@ export default function Bienvenue() {
                     placeholder="linkedin.com/in/votre-profil"
                   />
                 </Field>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Date de naissance (facultatif)" hint="Sert à déduire votre signe.">
+                    <input
+                      type="date"
+                      className={inputClass}
+                      value={draft.birthday}
+                      onChange={(e) => setBirthday(e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Signe astrologique (facultatif)">
+                    <select
+                      className={inputClass}
+                      value={draft.zodiac ?? ""}
+                      onChange={(e) =>
+                        setDraft((d) => ({ ...d, zodiac: (e.target.value || null) as ZodiacSign | null }))
+                      }
+                    >
+                      <option value="">Ne pas indiquer</option>
+                      {ZODIAC_SIGNS.map((z) => (
+                        <option key={z} value={z}>{ZODIAC_SYMBOL[z]} {z}</option>
+                      ))}
+                    </select>
+                  </Field>
+                </div>
+
+                {draft.zodiac && (
+                  <div className="animate-fade-up">
+                    <ZodiacBadge sign={draft.zodiac} withTrait />
+                  </div>
+                )}
               </div>
             )}
 
