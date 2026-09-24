@@ -27,10 +27,11 @@ est conservé dans le `localStorage` du navigateur.
    Cliquer un apéro affiche le placement de tables suggéré. « Créer un événement »
    le pose sur la carte en direct.
 4. **`/agenda`** — le pré-apéro visio d'intégration, avec le déroulé des 30 minutes.
-5. **`/reseau` → Carte des liens** — le graphe, les membres isolées en rose, et les
-   priorités d'animation.
-6. **`/messages`** — la messagerie interne. Le message d'intro d'une carte membre
-   est modifiable puis envoyé, et ouvre la conversation.
+5. **`/reseau`** — le graphe au centre : chaque visage est une membre, vous êtes
+   au milieu. Cliquez sur quelqu'un : la chaîne « Vous → … → elle » s'allume en
+   rose et l'app propose de demander l'introduction à la bonne intermédiaire.
+6. **La messagerie** — bouton flottant en bas à droite, ouvrable depuis n'importe
+   quel écran. Stickers et GIFs animés inclus.
 7. **`/marrainage`** — envoyer une invitation génère un code ; faire avancer son statut
    fait monter le palier de remise.
 
@@ -50,16 +51,21 @@ src/
     ├── matching.ts       # scoring, routage des demandes, placement de tables
     ├── avatarOptions.ts  # choix d'apparence et génération déterministe
     ├── ics.ts            # génération iCalendar
+    ├── zodiac.ts         # signes astrologiques, déduits d'une date
+    ├── stickers.ts       # planches de stickers et GIFs locaux
     └── store.tsx         # état applicatif + persistance localStorage
 ```
 
 ## Choix techniques
 
 - **Next.js 16 + Tailwind 4** — un seul processus, aucun back-end à déployer.
-- **MapLibre GL + tuiles CARTO/OSM** — carte 3D réelle, sans clé API. Le worker de
+- **MapLibre GL + tuiles CARTO Voyager** — carte 3D colorée, sans clé API. Le worker de
   MapLibre est servi depuis `public/maplibre/` : son chargement par défaut échoue
   avec le bundler, et la carte reste alors vide.
-- **Graphe en canvas** — force-directed écrit à la main, pas de dépendance de plus.
+- **Graphe en canvas** — force-directed écrit à la main, avec les avatars
+  rastérisés en nœuds et un BFS pour le plus court chemin d'introduction.
+- **GIFs maison** — des animations SVG jouées en boucle, pas de service externe
+  ni de fichier à charger.
 - **Matching déterministe** — recouvrement de tokens entre besoins, offres et
   compétences, plus un bonus « pont » pour les liens modérément faibles. Aucun appel
   réseau : rien ne peut tomber en panne pendant le pitch.

@@ -48,6 +48,14 @@ UI moderne, simple à prendre en main. Code couleur de l'entreprise :
 - **Logo officiel** en header et favicon ; largeur de l'app portée à 1600 px.
 - Âge rendu explicitement facultatif ; aperçu « personnes qui vous ressemblent » retiré de l'onboarding.
 
+## Ajouts de la troisième passe
+
+- **Carte colorée** (CARTO Voyager) et **survol animé** d'un événement à l'autre.
+- **Graphe du réseau au centre d'une page unique** : avatars en guise de nœuds, vous au milieu, annuaire et suggestions réorganisés autour.
+- **Chemin d'introduction** : cliquer sur une membre allume la chaîne « Vous → … → elle » et propose de demander à la première intermédiaire. « Priorités d'animation » retiré.
+- **Messagerie en volet flottant** accessible partout, avec **stickers** et **GIFs animés** générés localement.
+- **Animations globales** : cascade à l'apparition des grilles, élévation au survol, transitions par défaut, respect de `prefers-reduced-motion`.
+
 ## Pistes non faites
 
 - Carte de visite publique partageable par membre (vecteur d'adoption via le WhatsApp existant).
