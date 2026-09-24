@@ -3,8 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Avatar from "@/components/Avatar";
+import AvatarEditor from "@/components/AvatarEditor";
 import Guard from "@/components/Guard";
 import { Badge, Button, Card, Field, SectionTitle, TagInput, inputClass } from "@/components/ui";
+import type { AvatarConfig } from "@/lib/avatarOptions";
 import { ME, useStore } from "@/lib/store";
 import {
   HOBBY_SUGGESTIONS, NEED_SUGGESTIONS, NEIGHBORHOODS, OFFER_SUGGESTIONS, SKILL_SUGGESTIONS,
@@ -22,6 +24,7 @@ function Profil() {
   const { profile, saveProfile, resetAll, events } = useStore();
   const router = useRouter();
   const [saved, setSaved] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   const myEvents = events.filter((e) => e.attendees.includes(ME));
 
@@ -68,18 +71,45 @@ function Profil() {
             {profile.bio && <p className="mt-3 text-sm">{profile.bio}</p>}
 
             <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <Button size="sm" variant="outline" onClick={() => setEditing((v) => !v)}>
+                {editing ? "Fermer l'éditeur" : "Modifier mon avatar"}
+              </Button>
               <label className="cursor-pointer rounded-xl border border-line bg-surface px-3 py-1.5 text-sm transition hover:bg-cream">
-                Changer la photo
+                {profile.photo ? "Changer la photo" : "Importer une photo"}
                 <input type="file" accept="image/*" className="hidden"
                   onChange={(e) => { const f = e.target.files?.[0]; if (f) onPhoto(f); }} />
               </label>
               {profile.photo && (
                 <Button size="sm" variant="ghost" onClick={() => update("photo", undefined)}>
-                  Avatar généré
+                  Revenir à l&apos;avatar
                 </Button>
               )}
             </div>
+
+            {profile.linkedin && (
+              <a
+                href={`https://${profile.linkedin.replace(/^https?:\/\//, "")}`}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-block text-sm font-medium text-[#0E7C8C] hover:underline"
+              >
+                Voir mon LinkedIn
+              </a>
+            )}
           </Card>
+
+          {editing && (
+            <Card className="animate-fade-up">
+              <SectionTitle hint="Les changements sont enregistrés au fur et à mesure.">
+                Mon avatar
+              </SectionTitle>
+              <AvatarEditor
+                compact
+                config={profile.avatar}
+                onChange={(avatar: AvatarConfig) => update("avatar", avatar)}
+              />
+            </Card>
+          )}
 
           <Card>
             <SectionTitle>Mes rendez-vous</SectionTitle>
@@ -140,9 +170,15 @@ function Profil() {
                   {NEIGHBORHOODS.map((n) => <option key={n}>{n}</option>)}
                 </select>
               </Field>
-              <Field label="Âge" hint="Jamais affiché publiquement.">
+              <Field label="Âge (facultatif)" hint="Vous pouvez laisser vide. Jamais affiché publiquement.">
                 <input type="number" className={inputClass} value={profile.age ?? ""}
+                  placeholder="Laisser vide"
                   onChange={(e) => update("age", e.target.value ? Number(e.target.value) : null)} />
+              </Field>
+              <Field label="LinkedIn (facultatif)" hint="Visible par les autres membres.">
+                <input className={inputClass} value={profile.linkedin}
+                  placeholder="linkedin.com/in/votre-profil"
+                  onChange={(e) => update("linkedin", e.target.value)} />
               </Field>
             </div>
             <div className="mt-4">
