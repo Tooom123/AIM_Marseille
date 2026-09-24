@@ -32,7 +32,7 @@ export default function MemberCard({ match }: { match: MatchReason }) {
   }
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-4 transition hover:border-turquoise/40 hover:shadow-[0_4px_16px_rgb(18_51_58/.06)]">
+    <div className="flex h-full flex-col rounded-2xl border border-line bg-surface p-4 transition hover:border-turquoise/40 hover:shadow-[0_4px_16px_rgb(18_51_58/.06)]">
       <div className="flex items-start gap-3">
         <Avatar seed={member.id} first={member.firstName} last={member.lastName} photo={member.photo} size={48} />
         <div className="min-w-0 flex-1">
@@ -62,7 +62,7 @@ export default function MemberCard({ match }: { match: MatchReason }) {
         ))}
       </div>
 
-      <div className="mt-4 flex items-center gap-2">
+      <div className="mt-auto flex items-center gap-2 pt-4">
         <Button size="sm" variant={isConnected ? "outline" : "primary"} onClick={() => setOpen((o) => !o)}>
           {isConnected ? "Message envoyé" : "Message d'intro prêt"}
         </Button>

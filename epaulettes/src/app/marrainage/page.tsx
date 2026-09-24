@@ -192,17 +192,21 @@ function Marrainage() {
 function InviteRow({ invite, onAdvance }: { invite: Invite; onAdvance: () => void }) {
   const s = STATUS[invite.status];
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-line bg-bg p-3">
-      <Avatar seed={invite.code} first={invite.firstName} size={34} />
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium">{invite.firstName}</p>
-        <p className="truncate text-xs text-ink-soft">{invite.email}</p>
+    <div className="rounded-xl border border-line bg-bg p-3">
+      <div className="flex items-center gap-3">
+        <Avatar seed={invite.code} first={invite.firstName} size={34} />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium">{invite.firstName}</p>
+          <p className="truncate text-xs text-ink-soft">{invite.email}</p>
+        </div>
+        <Badge tone={s.tone}>{s.label}</Badge>
       </div>
-      <span className="font-mono text-xs text-ink-soft">{invite.code}</span>
-      <Badge tone={s.tone}>{s.label}</Badge>
-      {s.next && (
-        <Button size="sm" variant="ghost" onClick={onAdvance}>{s.next}</Button>
-      )}
+      <div className="mt-2.5 flex items-center gap-2 pl-[46px]">
+        <span className="font-mono text-xs text-ink-soft">{invite.code}</span>
+        {s.next && (
+          <Button size="sm" variant="ghost" className="ml-auto" onClick={onAdvance}>{s.next}</Button>
+        )}
+      </div>
     </div>
   );
 }

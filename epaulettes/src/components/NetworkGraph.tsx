@@ -94,8 +94,8 @@ export default function NetworkGraph() {
       }
       // Recentrage + amortissement
       for (const n of nodes) {
-        n.vx += (width / 2 - n.x) * 0.0022;
-        n.vy += (height / 2 - n.y) * 0.0022;
+        n.vx += (width / 2 - n.x) * 0.006;
+        n.vy += (height / 2 - n.y) * 0.006;
         n.vx *= 0.86; n.vy *= 0.86;
         n.x += n.vx; n.y += n.vy;
         const pad = 34;
@@ -118,8 +118,8 @@ export default function NetworkGraph() {
         const a = byId.get(aId), b = byId.get(bId);
         if (!a || !b) continue;
         const touched = hoveredId === aId || hoveredId === bId;
-        c.strokeStyle = touched ? "rgba(246,87,124,.55)" : "rgba(18,51,58,.13)";
-        c.lineWidth = touched ? 2 : 1;
+        c.strokeStyle = touched ? "rgba(246,87,124,.7)" : "rgba(18,51,58,.26)";
+        c.lineWidth = touched ? 2.5 : 1.3;
         c.beginPath();
         c.moveTo(a.x, a.y);
         c.lineTo(b.x, b.y);

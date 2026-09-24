@@ -30,9 +30,13 @@ function Agenda() {
     [events, filter],
   );
 
-  // Le pré-apéro d'intégration : on le met en avant s'il approche.
-  const visio = sorted.find((e) => e.format === "visio");
+  // Le pré-apéro d'intégration est mis en avant en haut : on évite de le
+  // répéter dans la liste juste en dessous.
   const isNewMember = profile.skills.length > 0;
+  const highlighted = filter === "all" && isNewMember
+    ? sorted.find((e) => e.format === "visio")
+    : undefined;
+  const listed = sorted.filter((e) => e.id !== highlighted?.id);
 
   return (
     <div className="space-y-6">
@@ -59,16 +63,16 @@ function Agenda() {
       </div>
 
       {/* Mise en avant du pré-apéro */}
-      {visio && filter === "all" && isNewMember && <VisioHighlight event={visio} />}
+      {highlighted && <VisioHighlight event={highlighted} />}
 
-      {sorted.length === 0 && (
+      {listed.length === 0 && !highlighted && (
         <Empty title="Rien dans cette vue.">
           Inscrivez-vous depuis la carte ou changez de filtre.
         </Empty>
       )}
 
       <div className="space-y-3">
-        {sorted.map((e) => {
+        {listed.map((e) => {
           const going = e.attendees.includes(ME);
           const full = e.attendees.length >= e.capacity;
           return (
