@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import Avatar from "@/components/Avatar";
 import { AddToCalendar } from "@/components/CalendarShare";
 import EventInvite from "@/components/EventInvite";
@@ -45,6 +45,16 @@ function Carte() {
   const [selectedId, setSelectedId] = useState<string | null>(events[0]?.id ?? null);
   const [showMembers, setShowMembers] = useState(true);
   const [creating, setCreating] = useState(false);
+  const mapCardRef = useRef<HTMLDivElement>(null);
+
+  /** Sélectionne un événement et s'assure que la carte est à l'écran pour voir le vol. */
+  const select = useCallback((id: string) => {
+    setSelectedId(id);
+    // En dessous de lg la carte n'est pas collante : on la ramène en haut.
+    if (window.innerWidth < 1024) {
+      mapCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
 
   const selected = events.find((e) => e.id === selectedId) ?? null;
   const tables = useMemo(
@@ -75,16 +85,26 @@ function Carte() {
         </div>
       </div>
 
-      {creating && <CreateEventForm onDone={(id) => { setCreating(false); setSelectedId(id); }} />}
+      {creating && <CreateEventForm onDone={(id) => { setCreating(false); select(id); }} />}
 
-      <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
-        <Card pad={false} className="h-[62vh] min-h-[420px] overflow-hidden lg:h-[70vh]">
+      <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr] lg:items-start">
+        {/*
+          Sur grand écran la carte est collante : on peut descendre dans la liste
+          des événements sans la perdre de vue. Sur mobile, on la ramène à
+          l'écran à chaque sélection (voir `select`).
+        */}
+        <Card
+          pad={false}
+          className="h-[62vh] min-h-[420px] scroll-mt-20 overflow-hidden lg:sticky lg:top-20 lg:h-[calc(100dvh-7rem)]"
+        >
+          <div ref={mapCardRef} className="size-full">
           <Map3D
             events={events}
             showMembers={showMembers}
             selectedId={selectedId}
-            onSelect={setSelectedId}
+            onSelect={select}
           />
+          </div>
         </Card>
 
         <div className="space-y-3">
@@ -96,7 +116,7 @@ function Carte() {
               return (
                 <button
                   key={e.id}
-                  onClick={() => setSelectedId(e.id)}
+                  onClick={() => select(e.id)}
                   className={`w-full rounded-2xl border p-3.5 text-left transition duration-200 hover:-translate-y-0.5 ${
                     active
                       ? "border-turquoise bg-turquoise/8 shadow-sm"

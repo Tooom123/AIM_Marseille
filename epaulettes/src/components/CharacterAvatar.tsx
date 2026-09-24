@@ -28,6 +28,9 @@ export default function CharacterAvatar({
   rounded?: boolean;
 }) {
   const c = config;
+  const tilt = { "à gauche": -6, droit: 0, "à droite": 6 }[c.tilt] ?? 0;
+  const faceW = { étroit: 0.9, normal: 1, large: 1.1 }[c.faceWidth] ?? 1;
+  const eyeScale = { petits: 0.84, normaux: 1, grands: 1.2 }[c.eyeSize] ?? 1;
 
   return (
     <svg
@@ -49,26 +52,32 @@ export default function CharacterAvatar({
         strokeLinejoin="round"
         vectorEffect="non-scaling-stroke"
       >
-        <Body top={c.top} />
+        <Body top={c.top} style={c.topStyle} />
 
         {/*
           Tête volontairement surdimensionnée, façon caricature. On met à
           l'échelle tout le groupe autour du centre du visage (50, 42) plutôt
           que de redessiner chaque tracé : traits et cheveux restent alignés.
         */}
-        <g transform={`translate(50 ${HEAD_CENTER_Y}) scale(${HEAD_SCALE}) translate(-50 ${-HEAD_CENTER_Y})`}>
+        <g
+          transform={`rotate(${tilt} 50 64) translate(50 ${HEAD_CENTER_Y}) scale(${HEAD_SCALE * faceW} ${HEAD_SCALE}) translate(-50 ${-HEAD_CENTER_Y})`}
+        >
           <BackHair style={c.hairStyle} color={c.hairColor} />
           <Head shape={c.face} skin={c.skin} />
+          <Shading skin={c.skin} />
           <Ears skin={c.skin} hidden={c.hairStyle === "voile"} />
           {c.blush && <Blush shape={c.face} />}
           {c.freckles && <Freckles />}
           <Brows shape={c.brow} color={c.hairColor} />
-          <Eyes shape={c.eyeShape} color={c.eyeColor} />
+          <g transform={`translate(50 43.5) scale(${eyeScale}) translate(-50 -43.5)`}>
+            <Eyes shape={c.eyeShape} color={c.eyeColor} />
+          </g>
           <Nose shape={c.nose} />
-          <Mouth shape={c.mouth} />
+          <Mouth shape={c.mouth} lips={c.lips} />
           <FrontHair style={c.hairStyle} color={c.hairColor} />
+          <HairShine style={c.hairStyle} color={c.hairColor} />
           <Glasses kind={c.glasses} />
-          <Accessory kind={c.accessory} />
+          <Accessory kind={c.accessory} accent={c.top} />
         </g>
       </g>
     </svg>
@@ -77,19 +86,53 @@ export default function CharacterAvatar({
 
 /* ---------- Corps ---------- */
 
-function Body({ top }: { top: string }) {
+function Body({ top, style }: { top: string; style: AvatarConfig["topStyle"] }) {
+  const dark = darken(top, 0.28);
   return (
     <g>
-      {/* Cou */}
-      <path d="M43 76c0 4 .3 6 .3 8h13.4c0-2 .3-4 .3-8z" fill="#00000018" stroke="none" />
+      {/* Cou — remonté pour laisser la place aux cols sous la grosse tête. */}
+      <path d="M43 72c0 4 .3 6 .3 8h13.4c0-2 .3-4 .3-8z" fill="#00000018" stroke="none" />
       {/* Épaules, tracé un peu tremblant */}
       <path
-        d="M50 84c-12 .4-21 6-24.5 14.5-.6 1.6-.9 1.5-1 1.5h51c-.2 0-.4.1-1-1.5C71 90 62 84.4 50 84z"
+        d="M50 80c-13 .4-23 6.5-26.5 15.5-.8 1.8-1 3-1.2 4.5h55.4c-.2-1.5-.4-2.7-1.2-4.5C73 86.5 63 80.4 50 80z"
         fill={top}
         strokeWidth={W.thick}
       />
-      {/* Encolure */}
-      <path d="M43.5 85.5c2.2 2.8 4.2 4 6.5 4s4.3-1.2 6.5-4" fill="none" strokeWidth={W.thin} />
+
+      {style === "col rond" && (
+        <path d="M42.5 81.5c2.6 3.4 5 4.8 7.5 4.8s4.9-1.4 7.5-4.8" fill="none" strokeWidth={W.thin} />
+      )}
+      {style === "col V" && (
+        <path d="M42 80.6 50 92l8-11.4z" fill={darken(top, 0.16)} strokeWidth={W.thin} />
+      )}
+      {style === "chemise" && (
+        <g strokeWidth={W.thin}>
+          <path d="M41.5 80.4l8.5 8-2 5.2-10.5-7.6z" fill="#FFFFFF" />
+          <path d="M58.5 80.4l-8.5 8 2 5.2 10.5-7.6z" fill="#FFFFFF" />
+          <path d="M50 89v11" fill="none" strokeDasharray="1.6 2.2" />
+        </g>
+      )}
+      {style === "col roulé" && (
+        <path
+          d="M40.5 78.5c2.8-3 16.2-3 19 0v7.5c-2.8 2.8-16.2 2.8-19 0z"
+          fill={darken(top, 0.12)}
+          strokeWidth={W.mid}
+        />
+      )}
+      {style === "blazer" && (
+        <g strokeWidth={W.thin}>
+          <path d="M42 80.5c2.6 3 5 4.2 8 4.2s5.4-1.2 8-4.2V100H42z" fill="#F7F7F2" />
+          <path d="M42 80.5c-3.8 6.5-7 11.5-9.5 19.5h11.5c1.2-6 .8-12-2-19.5z" fill={dark} />
+          <path d="M58 80.5c3.8 6.5 7 11.5 9.5 19.5H56c-1.2-6-.8-12 2-19.5z" fill={dark} />
+        </g>
+      )}
+      {style === "écharpe" && (
+        <g strokeWidth={W.mid}>
+          <path d="M37.5 79.5c3.6-3.6 21.4-3.6 25 0 .8 3.6.8 7.2 0 10-3.6 2.6-21.4 2.6-25 0-.8-2.8-.8-6.4 0-10z" fill={dark} />
+          <path d="M53 88c3 3.6 4 8 3 12h-8c0-4 1.6-8.4 5-12z" fill={dark} />
+          <path d="M40.5 84.5h19" fill="none" stroke={lighten(dark, 0.25)} strokeWidth="1.2" />
+        </g>
+      )}
     </g>
   );
 }
@@ -115,8 +158,22 @@ function Ears({ skin, hidden }: { skin: string; hidden: boolean }) {
   if (hidden) return null;
   return (
     <g fill={skin} strokeWidth={W.mid}>
-      <path d="M30.6 41.6c-3.4-.6-5.2 1.4-5 4.2.2 2.8 2.4 4.6 5.2 4.2z" />
-      <path d="M69.4 41.6c3.4-.6 5.2 1.4 5 4.2-.2 2.8-2.4 4.6-5.2 4.2z" />
+      <path d="M30.8 40.6c-4-.8-6.2 1.6-6 4.8.2 3.2 2.8 5.4 6.2 5z" />
+      <path d="M69.2 40.6c4-.8 6.2 1.6 6 4.8-.2 3.2-2.8 5.4-6.2 5z" />
+      {/* Pli interne : sans lui l'oreille est une simple bosse. */}
+      <path d="M28.4 43.2c-1 .9-1.2 2.5-.3 3.8M71.6 43.2c1 .9 1.2 2.5.3 3.8" fill="none" strokeWidth="1.1" opacity="0.7" />
+    </g>
+  );
+}
+
+/** Ombres légères : mâchoire et dessous du menton donnent du volume au visage. */
+function Shading({ skin }: { skin: string }) {
+  const shade = darken(skin, 0.28);
+  return (
+    <g fill={shade} stroke="none">
+      <ellipse cx="33.5" cy="57" rx="3.6" ry="6" opacity="0.14" />
+      <ellipse cx="66.5" cy="57" rx="3.6" ry="6" opacity="0.14" />
+      <ellipse cx="50" cy="63.4" rx="9" ry="2.2" opacity="0.16" />
     </g>
   );
 }
@@ -191,6 +248,7 @@ function Eyes({ shape, color }: { shape: AvatarConfig["eyeShape"]; color: string
       <g strokeWidth={W.mid}>
         <path d={`M${L - 7} ${Y}c2.2-4.6 11.8-4.6 14 0 -2.2 4.8-11.8 4.8-14 0z`} fill="#fff" />
         <path d={`M${R - 7} ${Y}c2.2-4.6 11.8-4.6 14 0 -2.2 4.8-11.8 4.8-14 0z`} fill="#fff" />
+        <Lids L={L} R={R} Y={Y} lashes />
         <g stroke="none">
           <circle cx={L} cy={Y} r="3.1" fill={color} />
           <circle cx={R} cy={Y} r="3.1" fill={color} />
@@ -216,6 +274,22 @@ function Eyes({ shape, color }: { shape: AvatarConfig["eyeShape"]; color: string
         <circle cx={L - 1.5} cy={Y - 1.4} r="1.3" fill="#fff" />
         <circle cx={R - 1.5} cy={Y - 1.4} r="1.3" fill="#fff" />
       </g>
+    </g>
+  );
+}
+
+/** Trait de paupière inférieure, et cils au coin externe pour les amandes. */
+function Lids({ L, R, Y, lashes = false }: { L: number; R: number; Y: number; lashes?: boolean }) {
+  return (
+    <g fill="none" strokeWidth="1.2" opacity="0.5">
+      <path d={`M${L - 4.6} ${Y + 5.4}c1.6 1.3 7.6 1.3 9.2 0`} />
+      <path d={`M${R - 4.6} ${Y + 5.4}c1.6 1.3 7.6 1.3 9.2 0`} />
+      {lashes && (
+        <g strokeWidth="1.5" opacity="1">
+          <path d={`M${L - 7.2} ${Y - 1.2}l-2.2-1.8M${L - 6.2} ${Y - 3}l-1.6-2.2`} />
+          <path d={`M${R + 7.2} ${Y - 1.2}l2.2-1.8M${R + 6.2} ${Y - 3}l1.6-2.2`} />
+        </g>
+      )}
     </g>
   );
 }
@@ -258,25 +332,25 @@ function Nose({ shape }: { shape: AvatarConfig["nose"] }) {
 
 /* ---------- Bouche ---------- */
 
-function Mouth({ shape }: { shape: AvatarConfig["mouth"] }) {
+function Mouth({ shape, lips }: { shape: AvatarConfig["mouth"]; lips: string }) {
   switch (shape) {
     case "grand":
       return (
         <g strokeWidth={W.mid}>
-          <path d="M39.5 57.5c2.6 7.6 18.4 7.6 21 0z" fill="#B0414F" />
+          <path d="M39.5 57.5c2.6 7.6 18.4 7.6 21 0z" fill={lips} />
           <path d="M41.6 58.4h16.8c-.8 1.4-16 1.4-16.8 0z" fill="#fff" stroke="none" />
         </g>
       );
     case "petit":
-      return <path d="M46.4 59c2.2 2.2 5 2.2 7.2 0" fill="none" strokeWidth={W.mid} />;
+      return <LipLine d="M46.4 59c2.2 2.2 5 2.2 7.2 0" lips={lips} />;
     case "moue":
-      return <path d="M45.6 60.6c2.6-2.6 6.2-2.6 8.8 0" fill="none" strokeWidth={W.mid} />;
+      return <LipLine d="M45.6 60.6c2.6-2.6 6.2-2.6 8.8 0" lips={lips} />;
     case "surprise":
-      return <ellipse cx="50" cy="59.4" rx="4" ry="5" fill="#B0414F" strokeWidth={W.mid} />;
+      return <ellipse cx="50" cy="59.4" rx="4" ry="5" fill={lips} strokeWidth={W.mid} />;
     case "langue":
       return (
         <g strokeWidth={W.mid}>
-          <path d="M42 57.6c2.4 6.4 13.6 6.4 16 0z" fill="#B0414F" />
+          <path d="M42 57.6c2.4 6.4 13.6 6.4 16 0z" fill={lips} />
           <path d="M46.6 62.4c0 3.4 6.8 3.4 6.8 0 0-1.4-1.6-2-3.4-2s-3.4.6-3.4 2z" fill="#F0808F" />
         </g>
       );
@@ -289,8 +363,18 @@ function Mouth({ shape }: { shape: AvatarConfig["mouth"] }) {
         </g>
       );
     default: // sourire
-      return <path d="M43.4 57.8c3.4 4.6 9.8 4.6 13.2 0" fill="none" strokeWidth={W.mid} />;
+      return <LipLine d="M43.4 57.8c3.4 4.6 9.8 4.6 13.2 0" lips={lips} />;
   }
+}
+
+/** Bouche en trait : contour encre, puis la couleur des lèvres par-dessus. */
+function LipLine({ d, lips }: { d: string; lips: string }) {
+  return (
+    <g fill="none">
+      <path d={d} strokeWidth={W.mid + 1.6} />
+      <path d={d} stroke={lips} strokeWidth={W.mid - 0.2} />
+    </g>
+  );
 }
 
 /* ---------- Cheveux ---------- */
@@ -300,19 +384,27 @@ function BackHair({ style, color }: { style: AvatarConfig["hairStyle"]; color: s
   switch (style) {
     case "long":
       return (
-        <path
-          d="M21 46c-.8-21 12-35 29-35s29.8 14 29 35c-.6 15-.8 27-2.2 40h-11c3-17 2-31-1-39.6-7.6 7-23.4 7-30.8 0C31 55 30 69 33 86H22.2C20.8 73 20.6 61 21 46z"
-          fill={color}
-          strokeWidth={sw}
-        />
+        <g>
+          <path
+            d="M21 46c-.8-21 12-35 29-35s29.8 14 29 35c-.6 15-.8 27-2.2 40h-11c3-17 2-31-1-39.6-7.6 7-23.4 7-30.8 0C31 55 30 69 33 86H22.2C20.8 73 20.6 61 21 46z"
+            fill={color}
+            strokeWidth={sw}
+          />
+          <path d="M27 52c-.6 10-.6 22 .4 32M73 52c.6 10 .6 22-.4 32" fill="none"
+            stroke={darken(color, 0.3)} strokeWidth="1.4" opacity="0.7" />
+        </g>
       );
     case "carré":
       return (
-        <path
-          d="M22 45c0-20 12-34 28-34s28 14 28 34v24h-11c2-13 1.4-24-1.4-31-7 6.6-26.2 6.6-33.2 0C29.6 45 29 56 31 69H22z"
-          fill={color}
-          strokeWidth={sw}
-        />
+        <g>
+          <path
+            d="M22 45c0-20 12-34 28-34s28 14 28 34v24h-11c2-13 1.4-24-1.4-31-7 6.6-26.2 6.6-33.2 0C29.6 45 29 56 31 69H22z"
+            fill={color}
+            strokeWidth={sw}
+          />
+          <path d="M26.5 50c-.3 6-.3 12 .3 17M73.5 50c.3 6 .3 12-.3 17" fill="none"
+            stroke={darken(color, 0.3)} strokeWidth="1.4" opacity="0.7" />
+        </g>
       );
     case "bouclé":
       return (
@@ -374,11 +466,15 @@ function BackHair({ style, color }: { style: AvatarConfig["hairStyle"]; color: s
       );
     case "voile":
       return (
-        <path
-          d="M18 48c0-21.5 14-37 32-37s32 15.5 32 37c0 19-1 33-2 52H68c3-18 2-34-2.6-42.6-8 7.6-22.8 7.6-30.8 0C30 63 29 82 32 100H20c-1-19-2-33-2-52z"
-          fill={color}
-          strokeWidth={sw}
-        />
+        <g>
+          <path
+            d="M18 48c0-21.5 14-37 32-37s32 15.5 32 37c0 19-1 33-2 52H68c3-18 2-34-2.6-42.6-8 7.6-22.8 7.6-30.8 0C30 63 29 82 32 100H20c-1-19-2-33-2-52z"
+            fill={color}
+            strokeWidth={sw}
+          />
+          <path d="M24 58c-.6 12-.6 26 .4 40M76 58c.6 12 .6 26-.4 40" fill="none"
+            stroke={darken(color, 0.3)} strokeWidth="1.4" opacity="0.6" />
+        </g>
       );
     case "chapeau":
       return (
@@ -432,6 +528,24 @@ function FrontHair({ style, color }: { style: AvatarConfig["hairStyle"]; color: 
   }
 }
 
+/** Reflet clair sur le dessus : c'est lui qui donne du volume à la chevelure. */
+function HairShine({ style, color }: { style: AvatarConfig["hairStyle"]; color: string }) {
+  if (style === "voile" || style === "chapeau" || style === "buzz" || style === "crête") return null;
+  const d =
+    style === "afro" || style === "bouclé"
+      ? "M36 24c3-4.4 7.4-7 12.4-7.6"
+      : "M35 29.5c3-6 8-9.6 13-10.6";
+  return (
+    <path
+      d={d}
+      fill="none"
+      stroke={lighten(color, 0.42)}
+      strokeWidth="2.6"
+      opacity="0.8"
+    />
+  );
+}
+
 /* ---------- Lunettes et accessoires ---------- */
 
 function Glasses({ kind }: { kind: AvatarConfig["glasses"] }) {
@@ -475,8 +589,32 @@ function Glasses({ kind }: { kind: AvatarConfig["glasses"] }) {
   );
 }
 
-function Accessory({ kind }: { kind: AvatarConfig["accessory"] }) {
+function Accessory({ kind, accent }: { kind: AvatarConfig["accessory"]; accent: string }) {
   if (kind === "aucun") return null;
+
+  if (kind === "bandeau") {
+    return (
+      <path d="M26.5 33.5c6.5-5.5 40.5-5.5 47 0" fill="none" stroke={accent} strokeWidth="4.6" />
+    );
+  }
+  if (kind === "collier") {
+    // Coordonnées du groupe tête : y≈75 tombe sur le cou une fois la tête agrandie.
+    return (
+      <g>
+        <path d="M41 69.5c3 4.2 6 6 9 6s6-1.8 9-6" fill="none" stroke="#E8C05A" strokeWidth="1.7" />
+        <circle cx="50" cy="76" r="2.2" fill="#F6577C" stroke="#E8C05A" strokeWidth="1" />
+      </g>
+    );
+  }
+  if (kind === "foulard") {
+    return (
+      <g strokeWidth={W.thin}>
+        <path d="M39.5 68.5c4-3.4 17-3.4 21 0-3.4 5.4-17.6 5.4-21 0z" fill={accent} />
+        <path d="M55 71c2.2 2.2 3.4 5.2 3 8.4-2.4-1.6-4.6-4.2-5.6-7.4z" fill={accent} />
+        <circle cx="50" cy="70.2" r="2.1" fill={darken(accent, 0.3)} />
+      </g>
+    );
+  }
 
   if (kind === "boucles") {
     return (

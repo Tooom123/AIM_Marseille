@@ -26,7 +26,16 @@ export const MOUTH_SHAPES = ["sourire", "grand", "petit", "moue", "surprise", "l
 export const FACE_SHAPES = ["ovale", "rond", "carré", "coeur", "long", "poire"] as const;
 export const NOSE_SHAPES = ["petit", "bouton", "long", "retroussé", "aucun"] as const;
 export const GLASSES = ["aucune", "rondes", "carrées", "chat", "soleil"] as const;
-export const ACCESSORIES = ["aucun", "boucles", "créoles", "piercing", "grain de beauté"] as const;
+export const ACCESSORIES = [
+  "aucun", "boucles", "créoles", "piercing", "grain de beauté", "bandeau", "collier", "foulard",
+] as const;
+
+/** Largeur du visage : c'est ce qui distingue le plus deux silhouettes. */
+export const FACE_WIDTHS = ["étroit", "normal", "large"] as const;
+export const EYE_SIZES = ["petits", "normaux", "grands"] as const;
+export const TILTS = ["à gauche", "droit", "à droite"] as const;
+export const TOP_STYLES = ["col rond", "col V", "chemise", "col roulé", "blazer", "écharpe"] as const;
+export const LIP_COLORS = ["#B0414F", "#D94A6A", "#C97B6A", "#8E3A4A", "#E8919F", "#7A4A3A"];
 
 export const BACKGROUNDS = [
   "#25C7D9", "#F6577C", "#F2F3DC", "#12333A", "#4ED8C0",
@@ -53,6 +62,11 @@ export type AvatarConfig = {
   top: string;
   freckles: boolean;
   blush: boolean;
+  faceWidth: (typeof FACE_WIDTHS)[number];
+  eyeSize: (typeof EYE_SIZES)[number];
+  tilt: (typeof TILTS)[number];
+  topStyle: (typeof TOP_STYLES)[number];
+  lips: string;
 };
 
 export const DEFAULT_AVATAR: AvatarConfig = {
@@ -71,6 +85,11 @@ export const DEFAULT_AVATAR: AvatarConfig = {
   top: TOP_COLORS[0],
   freckles: false,
   blush: true,
+  faceWidth: "normal",
+  eyeSize: "normaux",
+  tilt: "droit",
+  topStyle: "col rond",
+  lips: LIP_COLORS[0],
 };
 
 /** Avatar pseudo-aléatoire mais déterministe, dérivé d'une graine. */
@@ -107,6 +126,12 @@ export function avatarFromSeed(seed: string): AvatarConfig {
     top: pick(TOP_COLORS, 12),
     freckles: rnd(110) % 5 === 0,
     blush: rnd(120) % 3 !== 0,
+    faceWidth: pick(FACE_WIDTHS, 14),
+    eyeSize: pick(EYE_SIZES, 15),
+    // Une tête sur deux est légèrement penchée : ça suffit à animer une grille.
+    tilt: rnd(130) % 2 === 0 ? "droit" : pick(["à gauche", "à droite"] as const, 16),
+    topStyle: pick(TOP_STYLES, 17),
+    lips: pick(LIP_COLORS, 18),
   };
 }
 
@@ -141,5 +166,10 @@ export function sanitizeAvatar(raw: Partial<AvatarConfig> | undefined | null): A
     top: keep(c.top, TOP_COLORS, DEFAULT_AVATAR.top),
     freckles: typeof c.freckles === "boolean" ? c.freckles : DEFAULT_AVATAR.freckles,
     blush: typeof c.blush === "boolean" ? c.blush : DEFAULT_AVATAR.blush,
+    faceWidth: keep(c.faceWidth, FACE_WIDTHS, DEFAULT_AVATAR.faceWidth),
+    eyeSize: keep(c.eyeSize, EYE_SIZES, DEFAULT_AVATAR.eyeSize),
+    tilt: keep(c.tilt, TILTS, DEFAULT_AVATAR.tilt),
+    topStyle: keep(c.topStyle, TOP_STYLES, DEFAULT_AVATAR.topStyle),
+    lips: keep(c.lips, LIP_COLORS, DEFAULT_AVATAR.lips),
   };
 }

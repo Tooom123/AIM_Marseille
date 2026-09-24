@@ -37,6 +37,8 @@ export default function Map3D({
   /** Une transition vers un événement est en cours. */
   const flying = useRef(false);
   const markers = useRef<Marker[]>([]);
+  /** Marqueur de chaque événement, pour ouvrir sa bulle à l'arrivée du vol. */
+  const markerById = useRef<Map<string, Marker>>(new Map());
   // Le callback est lu dans les écouteurs des marqueurs : on le garde à jour via un effet,
   // jamais pendant le rendu.
   const onSelectRef = useRef(onSelect);
@@ -147,6 +149,7 @@ export default function Map3D({
 
     markers.current.forEach((mk) => mk.remove());
     markers.current = [];
+    markerById.current.clear();
 
     if (showMembers) {
       for (const member of MEMBERS) {
@@ -192,12 +195,12 @@ export default function Map3D({
           </div>
         `);
 
-      markers.current.push(
-        new Marker({ element: el, anchor: "center" })
-          .setLngLat(ev.coords)
-          .setPopup(popup)
-          .addTo(m),
-      );
+      const marker = new Marker({ element: el, anchor: "center" })
+        .setLngLat(ev.coords)
+        .setPopup(popup)
+        .addTo(m);
+      markers.current.push(marker);
+      markerById.current.set(ev.id, marker);
     }
   }, [events, showMembers, selectedId]);
 
@@ -210,6 +213,7 @@ export default function Map3D({
     if (!m || !selectedId) return;
     const ev = events.find((e) => e.id === selectedId);
     if (!ev) return;
+    let timer = 0;
 
     const fly = () => {
       // Premier cadrage : on se pose sans animation, sinon la carte part de loin.
@@ -231,30 +235,36 @@ export default function Map3D({
       });
 
       // Traversée puis descente sur l'événement, avec un quart de tour.
-      window.setTimeout(() => {
+      timer = window.setTimeout(() => {
         if (!map.current) return;
         map.current.flyTo({
           center: ev.coords,
           zoom: 16,
-          pitch: 62,
+          pitch: 58,
           bearing: m.getBearing() + 90,
           curve: 1.7,
           speed: 0.75,
           essential: true,
         });
+        // `flyTo` vient d'arrêter l'easeTo (ce qui a déjà émis un moveend) :
+        // le prochain moveend est donc bien la fin du vol.
+        map.current.once("moveend", () => {
+          flying.current = false;
+          const marker = markerById.current.get(ev.id);
+          if (marker && !marker.getPopup()?.isOpen()) marker.togglePopup();
+        });
       }, 520);
-
-      const done = () => {
-        flying.current = false;
-        m.off("moveend", done);
-      };
-      m.on("moveend", done);
     };
 
     if (m.isStyleLoaded()) fly();
     else m.once("load", fly);
 
-    return () => { flying.current = false; };
+    // Une nouvelle sélection avant la fin annule le vol précédent, sinon deux
+    // trajectoires se disputent la caméra.
+    return () => {
+      window.clearTimeout(timer);
+      flying.current = false;
+    };
   }, [selectedId, events]);
 
   return <div ref={container} className="size-full" />;

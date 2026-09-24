@@ -4,8 +4,9 @@ import { useState } from "react";
 import CharacterAvatar from "./CharacterAvatar";
 import { Button } from "./ui";
 import {
-  ACCESSORIES, BACKGROUNDS, BROW_SHAPES, EYE_COLORS, EYE_SHAPES, FACE_SHAPES,
-  GLASSES, HAIR_COLORS, HAIR_STYLES, MOUTH_SHAPES, SKIN_TONES, TOP_COLORS,
+  ACCESSORIES, BACKGROUNDS, BROW_SHAPES, EYE_COLORS, EYE_SHAPES, EYE_SIZES, FACE_SHAPES,
+  FACE_WIDTHS, GLASSES, HAIR_COLORS, HAIR_STYLES, LIP_COLORS, MOUTH_SHAPES, NOSE_SHAPES,
+  SKIN_TONES, TILTS, TOP_COLORS, TOP_STYLES,
   randomAvatar, type AvatarConfig,
 } from "@/lib/avatarOptions";
 
@@ -65,8 +66,14 @@ export default function AvatarEditor({
                 onPick={(v) => set("skin", v)} />
               <Chips label="Forme du visage" options={FACE_SHAPES} value={config.face}
                 onPick={(v) => set("face", v)} />
+              <Chips label="Largeur" options={FACE_WIDTHS} value={config.faceWidth}
+                onPick={(v) => set("faceWidth", v)} />
+              <Chips label="Inclinaison" options={TILTS} value={config.tilt}
+                onPick={(v) => set("tilt", v)} />
               <Toggle label="Taches de rousseur" value={config.freckles}
                 onToggle={() => set("freckles", !config.freckles)} />
+              <Toggle label="Joues rosées" value={config.blush}
+                onToggle={() => set("blush", !config.blush)} />
             </>
           )}
 
@@ -83,12 +90,18 @@ export default function AvatarEditor({
             <>
               <Chips label="Yeux" options={EYE_SHAPES} value={config.eyeShape}
                 onPick={(v) => set("eyeShape", v)} />
+              <Chips label="Taille des yeux" options={EYE_SIZES} value={config.eyeSize}
+                onPick={(v) => set("eyeSize", v)} />
               <Swatches label="Couleur des yeux" colors={EYE_COLORS} value={config.eyeColor}
                 onPick={(v) => set("eyeColor", v)} />
               <Chips label="Sourcils" options={BROW_SHAPES} value={config.brow}
                 onPick={(v) => set("brow", v)} />
+              <Chips label="Nez" options={NOSE_SHAPES} value={config.nose}
+                onPick={(v) => set("nose", v)} />
               <Chips label="Bouche" options={MOUTH_SHAPES} value={config.mouth}
                 onPick={(v) => set("mouth", v)} />
+              <Swatches label="Lèvres" colors={LIP_COLORS} value={config.lips}
+                onPick={(v) => set("lips", v)} />
             </>
           )}
 
@@ -98,7 +111,9 @@ export default function AvatarEditor({
                 onPick={(v) => set("glasses", v)} />
               <Chips label="Accessoires" options={ACCESSORIES} value={config.accessory}
                 onPick={(v) => set("accessory", v)} />
-              <Swatches label="Haut" colors={TOP_COLORS} value={config.top}
+              <Chips label="Tenue" options={TOP_STYLES} value={config.topStyle}
+                onPick={(v) => set("topStyle", v)} />
+              <Swatches label="Couleur du haut" colors={TOP_COLORS} value={config.top}
                 onPick={(v) => set("top", v)} />
               <Swatches label="Fond" colors={BACKGROUNDS} value={config.background}
                 onPick={(v) => set("background", v)} />
