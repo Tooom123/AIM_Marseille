@@ -3,6 +3,8 @@
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import Avatar from "@/components/Avatar";
+import { AddToCalendar } from "@/components/CalendarShare";
+import EventInvite from "@/components/EventInvite";
 import Guard from "@/components/Guard";
 import { Badge, Button, Card, Field, SectionTitle, inputClass } from "@/components/ui";
 import { EVENT_FORMAT_LABEL, formatDateLong, formatRange, relativeDay } from "@/lib/events";
@@ -150,8 +152,15 @@ function Carte() {
               >
                 {selected.attendees.includes(ME) ? "Je suis inscrite ✓" : "Je participe"}
               </Button>
+
+              <div className="mt-3 border-t border-line pt-3">
+                <AddToCalendar event={selected} />
+              </div>
             </Card>
           )}
+
+          {/* L'organisatrice peut convier des membres. */}
+          {selected?.host === ME && <EventInvite event={selected} />}
 
           {/* Placement de tables */}
           {tables.length > 0 && (

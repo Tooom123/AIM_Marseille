@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Avatar from "@/components/Avatar";
+import { AddToCalendar, CalendarSubscribe } from "@/components/CalendarShare";
+import EventInvite from "@/components/EventInvite";
 import Guard from "@/components/Guard";
 import { Badge, Button, Card, Empty } from "@/components/ui";
 import { EVENT_FORMAT_LABEL, daysUntil, formatDateLong, formatRange, relativeDay } from "@/lib/events";
@@ -62,6 +64,8 @@ function Agenda() {
         </div>
       </div>
 
+      <CalendarSubscribe events={events} />
+
       {/* Mise en avant du pré-apéro */}
       {highlighted && <VisioHighlight event={highlighted} />}
 
@@ -75,8 +79,10 @@ function Agenda() {
         {listed.map((e) => {
           const going = e.attendees.includes(ME);
           const full = e.attendees.length >= e.capacity;
+          const iHost = e.host === ME;
           return (
-            <Card key={e.id} className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div key={e.id} className="space-y-2">
+            <Card className="flex flex-col gap-4 sm:flex-row sm:items-center">
               {/* Pastille date */}
               <div className="flex shrink-0 items-center gap-3 sm:w-28 sm:flex-col sm:items-center sm:gap-0">
                 <div className="grid size-14 place-items-center rounded-2xl bg-cream">
@@ -120,14 +126,18 @@ function Agenda() {
                 </div>
               </div>
 
-              <Button
-                variant={going ? "outline" : "primary"}
-                onClick={() => toggleAttendance(e.id)}
-                className="shrink-0"
-              >
-                {going ? "Inscrite ✓" : "Je participe"}
-              </Button>
+              <div className="flex shrink-0 flex-col gap-2">
+                <Button
+                  variant={going ? "outline" : "primary"}
+                  onClick={() => toggleAttendance(e.id)}
+                >
+                  {going ? "Inscrite ✓" : "Je participe"}
+                </Button>
+                <AddToCalendar event={e} />
+              </div>
             </Card>
+            {iHost && <EventInvite event={e} />}
+            </div>
           );
         })}
       </div>

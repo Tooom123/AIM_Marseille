@@ -88,6 +88,7 @@ type Ctx = State & {
   advanceInvite: (id: string) => void;
   addRequest: (text: string, routedTo: string[]) => HelpRequest;
   markConnected: (memberId: string) => void;
+  inviteToEvent: (eventId: string, memberIds: string[]) => void;
   sendMessage: (toId: string, text: string) => void;
   markConversationRead: (withId: string) => void;
   unreadCount: number;
@@ -216,6 +217,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
+  /** Inviter des membres à un événement dont on est l'organisatrice. */
+  const inviteToEvent = useCallback((eventId: string, memberIds: string[]) => {
+    setState((s) => ({
+      ...s,
+      events: s.events.map((e) =>
+        e.id !== eventId
+          ? e
+          : {
+              ...e,
+              attendees: [...e.attendees, ...memberIds.filter((id) => !e.attendees.includes(id))],
+            },
+      ),
+    }));
+  }, []);
+
   const sendMessage = useCallback((toId: string, text: string) => {
     const msg = {
       id: `msg-${Date.now()}`, from: ME, text: text.trim(),
@@ -257,10 +273,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     () => ({
       ...state, ready, saveProfile, resetAll, toggleAttendance,
       createEvent, addInvite, advanceInvite, addRequest, markConnected,
-      sendMessage, markConversationRead, unreadCount,
+      inviteToEvent, sendMessage, markConversationRead, unreadCount,
     }),
     [state, ready, saveProfile, resetAll, toggleAttendance, createEvent, addInvite,
-     advanceInvite, addRequest, markConnected, sendMessage, markConversationRead, unreadCount],
+     advanceInvite, addRequest, markConnected, inviteToEvent, sendMessage,
+     markConversationRead, unreadCount],
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
