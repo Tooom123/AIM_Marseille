@@ -65,7 +65,7 @@ function Accueil() {
         </Link>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section className="stagger grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat value={MEMBERS.length + 1} label="membres du réseau" />
         <Stat value={upcoming.length} label="rendez-vous à venir" tone="turquoise" />
         <Stat value={matches.length} label="rencontres suggérées" tone="rose" />
@@ -83,7 +83,7 @@ function Accueil() {
         >
           Vos rencontres de la semaine
         </SectionTitle>
-        <div className="grid gap-3 lg:grid-cols-3">
+        <div className="stagger grid gap-3 lg:grid-cols-3">
           {matches.map((m) => <MemberCard key={m.member.id} match={m} />)}
         </div>
       </section>
@@ -96,7 +96,7 @@ function Accueil() {
         >
           Prochains rendez-vous
         </SectionTitle>
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="stagger grid gap-3 md:grid-cols-3">
           {upcoming.map((e) => {
             const going = e.attendees.includes(ME);
             return (

@@ -30,7 +30,7 @@ export default function MemberCard({ match }: { match: MatchReason }) {
   }
 
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-line bg-surface p-4 transition hover:border-turquoise/40 hover:shadow-[0_4px_16px_rgb(18_51_58/.06)]">
+    <div className="flex h-full flex-col rounded-2xl border border-line bg-surface p-4 transition duration-200 hover:-translate-y-1 hover:border-turquoise/50 hover:shadow-[0_10px_28px_rgb(18_51_58/.10)]">
       <div className="flex items-start gap-3">
         <Avatar seed={member.id} first={member.firstName} last={member.lastName} photo={member.photo} size={48} />
         <div className="min-w-0 flex-1">

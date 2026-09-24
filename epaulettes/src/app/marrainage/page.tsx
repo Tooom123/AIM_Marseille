@@ -67,7 +67,7 @@ function Marrainage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="stagger grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat value={invites.length} label="invitations envoyées" />
         <Stat value={invites.filter((i) => i.status !== "sent").length} label="codes acceptés" tone="turquoise" />
         <Stat value={joined} label="filleules inscrites" tone="rose" />

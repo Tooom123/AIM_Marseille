@@ -75,7 +75,7 @@ function Agenda() {
         </Empty>
       )}
 
-      <div className="space-y-3">
+      <div className="stagger space-y-3">
         {listed.map((e) => {
           const going = e.attendees.includes(ME);
           const full = e.attendees.length >= e.capacity;

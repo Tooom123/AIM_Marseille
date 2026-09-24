@@ -97,7 +97,7 @@ function Carte() {
                 <button
                   key={e.id}
                   onClick={() => setSelectedId(e.id)}
-                  className={`w-full rounded-2xl border p-3.5 text-left transition ${
+                  className={`w-full rounded-2xl border p-3.5 text-left transition duration-200 hover:-translate-y-0.5 ${
                     active
                       ? "border-turquoise bg-turquoise/8 shadow-sm"
                       : "border-line bg-surface hover:border-turquoise/40"

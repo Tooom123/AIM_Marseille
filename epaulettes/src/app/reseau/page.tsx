@@ -58,7 +58,7 @@ function Reseau() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="stagger grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat value={MEMBERS.length + 1} label="membres" />
         <Stat value={health.edges} label="liens déclarés" tone="turquoise" />
         <Stat value={`${Math.round(health.density * 100)} %`} label="densité du réseau" />
@@ -148,7 +148,7 @@ function Reseau() {
           onChange={(e) => setQuery(e.target.value)}
         />
         {filtered.length === 0 && <Empty title="Aucun résultat." />}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="stagger grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((m) => (
             <button
               key={m.id}
