@@ -56,7 +56,7 @@ function Profil() {
             <div className="flex justify-center">
               <Avatar
                 seed={profile.avatarSeed} first={profile.firstName} last={profile.lastName}
-                photo={profile.photo} size={96}
+                photo={profile.photo} config={profile.avatar} size={96}
               />
             </div>
             <h2 className="mt-3 text-lg font-semibold">

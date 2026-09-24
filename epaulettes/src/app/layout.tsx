@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: "Les Épaulettes · Le Réseau",
   description:
     "Le réseau qui connecte vraiment : onboarding personnalisé, carte des événements, marrainage et mises en relation utiles.",
+  icons: { icon: "/logo.png", apple: "/logo.png" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

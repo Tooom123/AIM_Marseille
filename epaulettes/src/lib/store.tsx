@@ -3,15 +3,16 @@
 import {
   createContext, useCallback, useContext, useEffect, useMemo, useState,
 } from "react";
+import { DEFAULT_AVATAR } from "./avatarOptions";
 import { EVENTS } from "./events";
 import type { Epaulette, HelpRequest, Invite, Profile } from "./types";
 
 const KEY = "epaulettes.v1";
 
 const EMPTY_PROFILE: Profile = {
-  firstName: "", lastName: "", job: "", company: "", age: null,
+  firstName: "", lastName: "", job: "", company: "", age: null, linkedin: "",
   neighborhood: "", skills: [], offers: [], needs: [], hobbies: [],
-  bio: "", avatarSeed: "epaulette", onboarded: false,
+  bio: "", avatarSeed: "epaulette", avatar: DEFAULT_AVATAR, onboarded: false,
 };
 
 type State = {
@@ -74,7 +75,11 @@ function loadState(): State {
     return {
       ...INITIAL,
       ...parsed,
-      profile: { ...EMPTY_PROFILE, ...(parsed.profile ?? {}) },
+      profile: {
+        ...EMPTY_PROFILE,
+        ...(parsed.profile ?? {}),
+        avatar: { ...DEFAULT_AVATAR, ...(parsed.profile?.avatar ?? {}) },
+      },
       // Les événements de base viennent du code : on ne garde que ceux créés par l'utilisatrice.
       events: [...EVENTS, ...(parsed.events ?? []).filter((e) => e.createdByUser)],
     };

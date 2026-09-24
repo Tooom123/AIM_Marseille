@@ -1,7 +1,10 @@
+import type { AvatarConfig } from "./avatarOptions";
+
 export type MemberId = string;
 
 export type Member = {
   id: MemberId;
+  linkedin?: string;
   firstName: string;
   lastName: string;
   job: string;
@@ -75,7 +78,9 @@ export type Profile = {
   lastName: string;
   job: string;
   company: string;
+  /** Facultatif : l'âge n'est jamais requis pour avancer. */
   age: number | null;
+  linkedin: string;
   neighborhood: string;
   skills: string[];
   offers: string[];
@@ -84,5 +89,7 @@ export type Profile = {
   bio: string;
   photo?: string;
   avatarSeed: string;
+  /** Avatar personnalisé ; ignoré si une photo est importée. */
+  avatar: AvatarConfig;
   onboarded: boolean;
 };

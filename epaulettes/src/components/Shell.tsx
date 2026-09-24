@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Avatar from "./Avatar";
@@ -23,7 +24,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-40 border-b border-line bg-surface/85 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
+        <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4 sm:px-6">
           <Link href="/accueil" className="flex items-center gap-2.5">
             <Logo />
             <span className="hidden text-[15px] font-semibold tracking-tight sm:block">
@@ -64,7 +65,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 seed={profile.avatarSeed}
                 first={profile.firstName || "É"}
                 last={profile.lastName}
-                photo={profile.photo}
+                photo={profile.photo} config={profile.avatar}
                 size={36}
               />
             </Link>
@@ -72,7 +73,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-28 pt-6 md:pb-12">{children}</main>
+      <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 pb-28 pt-6 sm:px-6 md:pb-12">{children}</main>
 
       {/* Navigation mobile */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden">
@@ -98,19 +99,16 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function Logo({ size = 30 }: { size?: number }) {
+export function Logo({ size = 34 }: { size?: number }) {
   return (
-    <span
-      style={{ width: size, height: size }}
-      className="grid shrink-0 place-items-center rounded-xl bg-gradient-to-br from-turquoise to-rose text-white"
-    >
-      <svg viewBox="0 0 24 24" fill="none" className="size-[62%]">
-        {/* Deux épaulettes stylisées */}
-        <path d="M4 15l3-7h4l-2 7z" fill="currentColor" opacity=".95" />
-        <path d="M13 15l3-7h4l-2 7z" fill="currentColor" opacity=".7" />
-        <path d="M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-    </span>
+    <Image
+      src="/logo.png"
+      alt="Les Épaulettes"
+      width={size}
+      height={size}
+      priority
+      className="shrink-0"
+    />
   );
 }
 

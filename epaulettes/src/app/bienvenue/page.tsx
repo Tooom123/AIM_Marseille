@@ -2,10 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import Avatar from "@/components/Avatar";
+import AvatarEditor from "@/components/AvatarEditor";
 import { Logo } from "@/components/Shell";
-import { Badge, Button, Field, TagInput, inputClass } from "@/components/ui";
-import { matchesFor } from "@/lib/matching";
+import { Button, Field, TagInput, inputClass } from "@/components/ui";
+import { DEFAULT_AVATAR, type AvatarConfig } from "@/lib/avatarOptions";
 import { useStore } from "@/lib/store";
 import {
   HOBBY_SUGGESTIONS, NEED_SUGGESTIONS, NEIGHBORHOODS, OFFER_SUGGESTIONS, SKILL_SUGGESTIONS,
@@ -19,7 +19,7 @@ const STEPS = [
   { id: "skills", q: "Sur quoi êtes-vous forte ?", sub: "Trois à cinq compétences suffisent." },
   { id: "needs", q: "Et qu'est-ce qui vous aiderait, là, maintenant ?", sub: "C'est la question qui fait tourner le réseau." },
   { id: "hobbies", q: "En dehors du travail ?", sub: "Ce sont ces détails qui brisent la glace à l'apéro." },
-  { id: "photo", q: "Une photo ?", sub: "Facultatif — sinon on vous génère un avatar." },
+  { id: "avatar", q: "À quoi ressemblez-vous ?", sub: "Composez votre avatar, ou importez une photo." },
 ] as const;
 
 export default function Bienvenue() {
@@ -30,10 +30,12 @@ export default function Bienvenue() {
     firstName: profile.firstName, lastName: profile.lastName,
     job: profile.job, company: profile.company,
     age: profile.age ? String(profile.age) : "",
+    linkedin: profile.linkedin,
     neighborhood: profile.neighborhood || "Vieux-Port",
     skills: profile.skills, offers: profile.offers,
     needs: profile.needs, hobbies: profile.hobbies,
     bio: profile.bio, photo: profile.photo as string | undefined,
+    avatar: profile.avatar ?? DEFAULT_AVATAR,
   }));
 
   const current = STEPS[step];
@@ -51,19 +53,6 @@ export default function Bienvenue() {
     }
   }, [current.id, draft]);
 
-  // Aperçu en direct : la preuve que remplir le profil sert à quelque chose.
-  const preview = useMemo(() => {
-    if (draft.skills.length === 0 && draft.needs.length === 0) return [];
-    return matchesFor(
-      {
-        skills: draft.skills, offers: draft.offers, needs: draft.needs,
-        hobbies: draft.hobbies, job: draft.job || "membre", neighborhood: draft.neighborhood,
-      },
-      null,
-      3,
-    );
-  }, [draft]);
-
   function finish() {
     saveProfile({
       firstName: draft.firstName.trim(),
@@ -71,10 +60,12 @@ export default function Bienvenue() {
       job: draft.job.trim(),
       company: draft.company.trim(),
       age: draft.age ? Number(draft.age) : null,
+      linkedin: draft.linkedin.trim(),
       neighborhood: draft.neighborhood,
       skills: draft.skills, offers: draft.offers, needs: draft.needs, hobbies: draft.hobbies,
       bio: draft.bio.trim(),
       photo: draft.photo,
+      avatar: draft.avatar,
       avatarSeed: `${draft.firstName}${draft.lastName}${draft.job}` || "epaulette",
       onboarded: true,
     });
@@ -181,23 +172,33 @@ export default function Bienvenue() {
             )}
 
             {current.id === "place" && (
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Quartier">
-                  <select
-                    className={inputClass}
-                    value={draft.neighborhood}
-                    onChange={(e) => setDraft((d) => ({ ...d, neighborhood: e.target.value }))}
-                  >
-                    {NEIGHBORHOODS.map((n) => <option key={n}>{n}</option>)}
-                  </select>
-                </Field>
-                <Field label="Âge" hint="Facultatif, jamais affiché publiquement.">
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Quartier">
+                    <select
+                      className={inputClass}
+                      value={draft.neighborhood}
+                      onChange={(e) => setDraft((d) => ({ ...d, neighborhood: e.target.value }))}
+                    >
+                      {NEIGHBORHOODS.map((n) => <option key={n}>{n}</option>)}
+                    </select>
+                  </Field>
+                  <Field label="Âge (facultatif)" hint="Vous pouvez laisser vide. Jamais affiché publiquement.">
+                    <input
+                      type="number" min={18} max={99}
+                      className={inputClass}
+                      value={draft.age}
+                      onChange={(e) => setDraft((d) => ({ ...d, age: e.target.value }))}
+                      placeholder="Laisser vide"
+                    />
+                  </Field>
+                </div>
+                <Field label="LinkedIn (facultatif)" hint="Les autres membres pourront vous y retrouver.">
                   <input
-                    type="number" min={18} max={99}
                     className={inputClass}
-                    value={draft.age}
-                    onChange={(e) => setDraft((d) => ({ ...d, age: e.target.value }))}
-                    placeholder="38"
+                    value={draft.linkedin}
+                    onChange={(e) => setDraft((d) => ({ ...d, linkedin: e.target.value }))}
+                    placeholder="linkedin.com/in/votre-profil"
                   />
                 </Field>
               </div>
@@ -246,55 +247,34 @@ export default function Bienvenue() {
               </Field>
             )}
 
-            {current.id === "photo" && (
-              <div className="flex flex-col items-center gap-5 rounded-2xl border border-line bg-surface p-8">
-                <Avatar
-                  seed={`${draft.firstName}${draft.lastName}${draft.job}`}
-                  first={draft.firstName || "É"}
-                  last={draft.lastName}
-                  photo={draft.photo}
-                  size={104}
-                />
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  <label className="cursor-pointer rounded-xl border border-line bg-surface px-4 py-2 text-sm font-medium transition hover:bg-cream">
-                    Choisir une photo
-                    <input
-                      type="file" accept="image/*" className="hidden"
-                      onChange={(e) => { const f = e.target.files?.[0]; if (f) onPhoto(f); }}
-                    />
-                  </label>
-                  {draft.photo && (
-                    <Button variant="ghost" size="sm" onClick={() => setDraft((d) => ({ ...d, photo: undefined }))}>
-                      Utiliser l&apos;avatar généré
+            {current.id === "avatar" && (
+              <div className="rounded-2xl border border-line bg-surface p-5">
+                {draft.photo ? (
+                  <div className="flex flex-col items-center gap-4">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={draft.photo} alt="Votre photo"
+                      className="size-40 rounded-full object-cover" />
+                    <Button variant="outline" size="sm"
+                      onClick={() => setDraft((d) => ({ ...d, photo: undefined }))}>
+                      Composer un avatar à la place
                     </Button>
-                  )}
+                  </div>
+                ) : (
+                  <AvatarEditor
+                    config={draft.avatar}
+                    onChange={(avatar: AvatarConfig) => setDraft((d) => ({ ...d, avatar }))}
+                  />
+                )}
+                <div className="mt-5 border-t border-line pt-4 text-center">
+                  <label className="cursor-pointer text-sm text-ink-soft underline decoration-dotted hover:text-ink">
+                    ou importer une photo
+                    <input type="file" accept="image/*" className="hidden"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) onPhoto(f); }} />
+                  </label>
                 </div>
               </div>
             )}
           </div>
-
-          {/* Aperçu des mises en relation : le "aha" de l'onboarding */}
-          {preview.length > 0 && step >= 3 && (
-            <div className="mt-8 rounded-2xl border border-turquoise/30 bg-turquoise/6 p-4">
-              <div className="mb-3 flex items-center gap-2">
-                <Badge tone="turquoise">Déjà {preview.length} rencontres pour vous</Badge>
-              </div>
-              <div className="space-y-2.5">
-                {preview.map(({ member, why }) => (
-                  <div key={member.id} className="flex items-start gap-3">
-                    <Avatar seed={member.id} first={member.firstName} last={member.lastName} size={32} />
-                    <div className="min-w-0 text-sm">
-                      <p className="font-medium">
-                        {member.firstName} {member.lastName}
-                        <span className="font-normal text-ink-soft"> · {member.job}</span>
-                      </p>
-                      <p className="text-ink-soft">{why}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           <div className="mt-8 flex items-center gap-3">
             {step > 0 && (

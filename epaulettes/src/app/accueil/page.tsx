@@ -50,7 +50,7 @@ function Accueil() {
       <section className="flex flex-wrap items-center gap-4">
         <Avatar
           seed={profile.avatarSeed} first={profile.firstName} last={profile.lastName}
-          photo={profile.photo} size={60}
+          photo={profile.photo} config={profile.avatar} size={60}
         />
         <div className="min-w-0">
           <h1 className="text-2xl font-semibold tracking-tight">
@@ -154,6 +154,7 @@ function Accueil() {
                     first={author?.firstName ?? profile.firstName}
                     last={author?.lastName ?? profile.lastName}
                     photo={author ? author.photo : profile.photo}
+                    config={author ? undefined : profile.avatar}
                     size={38}
                   />
                   <div className="min-w-0 flex-1">
