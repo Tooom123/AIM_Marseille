@@ -10,8 +10,8 @@ import { EVENT_FORMAT_LABEL, formatRange, relativeDay } from "@/lib/events";
 import { MEMBERS } from "@/lib/members";
 import type { Epaulette } from "@/lib/types";
 
-/** Style vectoriel gratuit et sans clé (tuiles OSM via demotiles + relief plat stylisé). */
-const STYLE_URL = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
+/** Style vectoriel coloré, gratuit et sans clé (CARTO Voyager, données OSM). */
+const STYLE_URL = "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json";
 
 const MARSEILLE: [number, number] = [5.3772, 43.2921];
 
@@ -78,10 +78,14 @@ export default function Map3D({
             "source-layer": "building",
             minzoom: 12,
             paint: {
+              // Dégradé de la charte : les immeubles hauts tirent vers le turquoise.
               "fill-extrusion-color": [
-                "interpolate", ["linear"], ["zoom"],
-                12, "#DDE3D2",
-                16, "#CBD4C0",
+                "interpolate", ["linear"],
+                ["coalesce", ["get", "render_height"], 10],
+                0, "#F7E9D8",
+                18, "#E8CDB4",
+                45, "#A9D9DE",
+                90, "#5FC4D2",
               ],
               "fill-extrusion-height": [
                 "interpolate", ["linear"], ["zoom"],
@@ -89,7 +93,7 @@ export default function Map3D({
                 12.6, ["*", ["coalesce", ["get", "render_height"], 12], 1.6],
               ],
               "fill-extrusion-base": ["coalesce", ["get", "render_min_height"], 0],
-              "fill-extrusion-opacity": 0.85,
+              "fill-extrusion-opacity": 0.9,
             },
           },
           firstSymbol,
@@ -180,13 +184,37 @@ export default function Map3D({
     }
   }, [events, showMembers, selectedId]);
 
-  // Recentrage sur l'événement sélectionné.
+  // Transition vers l'événement sélectionné : `flyTo` prend de l'altitude puis
+  // redescend, ce qui rend le déplacement lisible au lieu d'un saut sec.
+  const hasFlown = useRef(false);
+
   useEffect(() => {
     const m = map.current;
     if (!m || !selectedId) return;
     const ev = events.find((e) => e.id === selectedId);
     if (!ev) return;
-    m.flyTo({ center: ev.coords, zoom: 15, pitch: 62, duration: 1400, essential: true });
+
+    const fly = () => {
+      // Premier cadrage : on se pose sans animation, sinon la carte part de loin.
+      if (!hasFlown.current) {
+        hasFlown.current = true;
+        m.jumpTo({ center: ev.coords, zoom: 14.6, pitch: 58 });
+        return;
+      }
+      m.flyTo({
+        center: ev.coords,
+        zoom: 15.6,
+        pitch: 60,
+        bearing: m.getBearing() + 25,
+        // `curve` et `speed` dessinent la parabole : on monte, on traverse, on se pose.
+        curve: 1.5,
+        speed: 0.9,
+        essential: true,
+      });
+    };
+
+    if (m.isStyleLoaded()) fly();
+    else m.once("load", fly);
   }, [selectedId, events]);
 
   return <div ref={container} className="size-full" />;
