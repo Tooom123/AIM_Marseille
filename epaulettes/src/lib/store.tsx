@@ -65,26 +65,37 @@ const StoreContext = createContext<Ctx | null>(null);
 /** L'utilisatrice courante est "me" : elle n'est pas dans MEMBERS, elle s'ajoute via l'onboarding. */
 export const ME = "me";
 
+/** Lecture du stockage local. Tolère un stockage absent, bloqué ou corrompu. */
+function loadState(): State {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return INITIAL;
+    const parsed = JSON.parse(raw) as Partial<State>;
+    return {
+      ...INITIAL,
+      ...parsed,
+      profile: { ...EMPTY_PROFILE, ...(parsed.profile ?? {}) },
+      // Les événements de base viennent du code : on ne garde que ceux créés par l'utilisatrice.
+      events: [...EVENTS, ...(parsed.events ?? []).filter((e) => e.createdByUser)],
+    };
+  } catch {
+    // localStorage indisponible (navigation privée) ou JSON invalide.
+    return INITIAL;
+  }
+}
+
 export function StoreProvider({ children }: { children: React.ReactNode }) {
+  // Hydratation : lue une seule fois, paresseusement. Le rendu serveur part
+  // toujours de INITIAL, et `ready` empêche l'affichage avant la lecture du
+  // stockage — sans quoi React signalerait une divergence d'hydratation.
   const [state, setState] = useState<State>(INITIAL);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as Partial<State>;
-        setState((s) => ({
-          ...s,
-          ...parsed,
-          profile: { ...EMPTY_PROFILE, ...(parsed.profile ?? {}) },
-          // Les événements de base viennent du code : on ne garde que ceux créés par l'utilisatrice.
-          events: [...EVENTS, ...(parsed.events ?? []).filter((e) => e.createdByUser)],
-        }));
-      }
-    } catch {
-      // localStorage indisponible (navigation privée) : on reste sur l'état initial.
-    }
+    // Une seule passe, au montage : on synchronise l'état React avec le
+    // stockage du navigateur (système externe), donc pas de cascade de rendus.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setState(loadState());
     setReady(true);
   }, []);
 

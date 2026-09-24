@@ -29,8 +29,12 @@ export default function Map3D({
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MlMap | null>(null);
   const markers = useRef<Marker[]>([]);
+  // Le callback est lu dans les écouteurs des marqueurs : on le garde à jour via un effet,
+  // jamais pendant le rendu.
   const onSelectRef = useRef(onSelect);
-  onSelectRef.current = onSelect;
+  useEffect(() => {
+    onSelectRef.current = onSelect;
+  }, [onSelect]);
 
   // Initialisation : une seule fois.
   useEffect(() => {
