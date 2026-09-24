@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Avatar from "./Avatar";
 import { Badge, Button } from "./ui";
+import NewcomerBadge from "./NewcomerBadge";
 import ZodiacBadge from "./ZodiacBadge";
 import type { MatchReason } from "@/lib/types";
 import { useStore } from "@/lib/store";
@@ -37,7 +38,7 @@ export default function MemberCard({ match }: { match: MatchReason }) {
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="font-semibold">{member.firstName} {member.lastName}</h3>
             {member.mentor && <Badge tone="rose">Marraine</Badge>}
-            {member.isNewcomer && <Badge tone="turquoise">Nouvelle</Badge>}
+            <NewcomerBadge member={member} />
           </div>
           <p className="text-sm text-ink-soft">
             {member.job} · {member.company}

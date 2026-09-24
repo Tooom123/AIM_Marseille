@@ -9,7 +9,7 @@ import { Badge, Button, Card, Empty, SectionTitle, Stat, inputClass } from "@/co
 import { EVENT_FORMAT_LABEL, formatRange, relativeDay } from "@/lib/events";
 import { MEMBERS, MEMBERS_BY_ID } from "@/lib/members";
 import { matchesFor, routeHelpRequest } from "@/lib/matching";
-import { ME, useStore } from "@/lib/store";
+import { GENERAL_CHAT_ID, ME, useStore } from "@/lib/store";
 
 export default function Page() {
   return (
@@ -20,7 +20,15 @@ export default function Page() {
 }
 
 function Accueil() {
-  const { profile, events, requests, addRequest, toggleAttendance, invites } = useStore();
+  const {
+    profile, events, requests, addRequest, toggleAttendance, invites,
+    conversations, openConversation,
+  } = useStore();
+
+  const general = conversations.find((c) => c.withId === GENERAL_CHAT_ID);
+  const generalUnread = general?.messages.filter((m) => !m.read && m.from !== ME).length ?? 0;
+  const lastGeneral = general?.messages[general.messages.length - 1];
+  const lastAuthor = lastGeneral ? MEMBERS_BY_ID[lastGeneral.from] : null;
 
   const matches = useMemo(
     () => matchesFor(
@@ -136,6 +144,38 @@ function Accueil() {
           })}
         </div>
       </section>
+
+      {/* Salon commun */}
+      {general && (
+        <section>
+          <SectionTitle hint="Le groupe du réseau, sans quitter l'application.">
+            Le salon des Épaulettes
+          </SectionTitle>
+          <button
+            onClick={() => openConversation(GENERAL_CHAT_ID)}
+            className="flex w-full items-center gap-3 rounded-2xl border border-line bg-surface p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:border-turquoise hover:shadow-md"
+          >
+            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-turquoise to-rose text-white">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" className="size-6">
+                <circle cx="9" cy="9" r="3" />
+                <path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5" strokeLinecap="round" />
+                <path d="M16 6.5a3 3 0 0 1 0 5.6M17.5 19c0-2.4-.9-4.2-2.4-5.2" strokeLinecap="round" />
+              </svg>
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="flex items-center gap-2">
+                <span className="font-semibold">Salon des Épaulettes</span>
+                {generalUnread > 0 && <Badge tone="rose">{generalUnread} non lus</Badge>}
+              </span>
+              <span className="mt-0.5 block truncate text-sm text-ink-soft">
+                {lastAuthor ? `${lastAuthor.firstName} : ` : ""}
+                {lastGeneral?.text.startsWith("::") ? "a réagi" : lastGeneral?.text}
+              </span>
+            </span>
+            <span className="shrink-0 text-sm font-medium text-[#0E7C8C]">Ouvrir</span>
+          </button>
+        </section>
+      )}
 
       {/* Fil d'entraide */}
       <section>

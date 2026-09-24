@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Avatar from "@/components/Avatar";
 import Guard from "@/components/Guard";
 import NetworkGraph from "@/components/NetworkGraph";
+import NewcomerBadge from "@/components/NewcomerBadge";
 import ZodiacBadge from "@/components/ZodiacBadge";
 import { Badge, Button, Card, Empty, SectionTitle, Stat, inputClass } from "@/components/ui";
 import { MEMBERS, MEMBERS_BY_ID, buildAdjacency } from "@/lib/members";
@@ -173,7 +174,7 @@ function Reseau() {
               <p className="mt-2.5 line-clamp-2 text-sm text-ink-soft">{m.bio}</p>
               <div className="mt-2.5 flex flex-wrap gap-1.5">
                 {m.mentor && <Badge tone="rose">Marraine</Badge>}
-                {m.isNewcomer && <Badge tone="turquoise">Nouvelle</Badge>}
+                <NewcomerBadge member={m} showCountdown />
                 {m.zodiac && <ZodiacBadge sign={m.zodiac} size="sm" />}
               </div>
             </button>

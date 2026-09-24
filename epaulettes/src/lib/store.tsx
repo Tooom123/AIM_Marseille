@@ -12,6 +12,9 @@ const KEY = "epaulettes.v1";
 /** L'utilisatrice courante est "me" : elle n'est pas dans MEMBERS, elle s'ajoute via l'onboarding. */
 export const ME = "me";
 
+/** Salon commun à toutes les membres, façon groupe WhatsApp. */
+export const GENERAL_CHAT_ID = "general";
+
 const EMPTY_PROFILE: Profile = {
   firstName: "", lastName: "", job: "", company: "", age: null, linkedin: "",
   birthday: "", zodiac: null,
@@ -53,6 +56,25 @@ const INITIAL: State = {
   ],
   connected: [],
   conversations: [
+    {
+      withId: GENERAL_CHAT_ID,
+      messages: [
+        { id: "g1", from: "sarah", at: hoursAgo(28), read: true,
+          text: "Bonjour à toutes ! L'apéro du Panier approche, pensez à confirmer votre venue sur la carte 🥂" },
+        { id: "g2", from: "beatrice", at: hoursAgo(26), read: true,
+          text: "Question bête : quelqu'une a déjà eu affaire à l'URSSAF pour une activité mixte formation + conseil ?" },
+        { id: "g3", from: "therese", at: hoursAgo(25), read: true,
+          text: "Oui, plusieurs fois. Le point qui coince c'est le code APE. Je t'écris en privé." },
+        { id: "g4", from: "maya", at: hoursAgo(20), read: true,
+          text: "::sticker:💪" },
+        { id: "g5", from: "yasmine", at: hoursAgo(6), read: true,
+          text: "Je cherche une salle pour 15 personnes côté Joliette, mardi prochain. Des pistes ?" },
+        { id: "g6", from: "nadia", at: hoursAgo(5), read: false,
+          text: "Les Docks ont une salle dispo, je te donne le contact. Et je peux m'occuper du traiteur 😊" },
+        { id: "g7", from: "elodie", at: hoursAgo(2), read: false,
+          text: "Première visio d'intégration jeudi, j'ai hâte de rencontrer tout le monde !" },
+      ],
+    },
     {
       withId: "sonia",
       messages: [
@@ -257,10 +279,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           )
         : [...s.conversations, { withId: toId, messages: [msg] }];
       // La conversation la plus récente remonte en tête.
+      // Le salon général reste épinglé en tête ; les échanges privés sont
+      // classés du plus récent au plus ancien.
+      const sorted = [...conversations].sort((a, b) => {
+        if (a.withId === GENERAL_CHAT_ID) return -1;
+        if (b.withId === GENERAL_CHAT_ID) return 1;
+        return lastAt(b) - lastAt(a);
+      });
       return {
         ...s,
-        conversations: [...conversations].sort((a, b) => lastAt(b) - lastAt(a)),
-        connected: s.connected.includes(toId) ? s.connected : [...s.connected, toId],
+        conversations: sorted,
+        connected:
+          toId === GENERAL_CHAT_ID || s.connected.includes(toId)
+            ? s.connected
+            : [...s.connected, toId],
       };
     });
   }, []);

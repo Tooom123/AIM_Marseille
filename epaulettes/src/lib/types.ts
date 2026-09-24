@@ -108,8 +108,11 @@ export type Message = {
   read: boolean;
 };
 
+/**
+ * `withId` identifie la conversation : l'identifiant de l'autre membre pour
+ * un échange privé, ou GENERAL_CHAT_ID pour le salon commun.
+ */
 export type Conversation = {
-  /** L'autre membre : une conversation est toujours entre vous et elle. */
   withId: MemberId;
   messages: Message[];
 };

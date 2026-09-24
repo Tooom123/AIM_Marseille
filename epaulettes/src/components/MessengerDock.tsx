@@ -6,7 +6,8 @@ import Avatar from "./Avatar";
 import GifCard from "./GifCard";
 import { Badge, Button, inputClass } from "./ui";
 import { MEMBERS, MEMBERS_BY_ID } from "@/lib/members";
-import { ME, useStore } from "@/lib/store";
+import NewcomerBadge from "./NewcomerBadge";
+import { GENERAL_CHAT_ID, ME, useStore } from "@/lib/store";
 import { DEMO_LINKEDIN } from "@/lib/links";
 import {
   GIFS, STICKER_PACKS, decodeMessage, encodeGif, encodeSticker,
@@ -44,7 +45,7 @@ function Dock() {
   // premier coup, sans rendu intermédiaire.
   // Deux sources : l'URL (lien partagé) et l'état partagé (bouton dans l'app).
   const requested = pendingConversation ?? params.get("avec");
-  const pendingOpen = !!(requested && MEMBERS_BY_ID[requested]);
+  const pendingOpen = !!(requested && (MEMBERS_BY_ID[requested] || requested === GENERAL_CHAT_ID));
   const open = openState || pendingOpen;
 
   useEffect(() => {
@@ -59,7 +60,10 @@ function Dock() {
 
   const activeId = picked ?? (pendingOpen ? requested : null) ?? conversations[0]?.withId ?? null;
   const active = conversations.find((c) => c.withId === activeId) ?? null;
-  const activeMember = activeId ? MEMBERS_BY_ID[activeId] : null;
+  const isGeneral = activeId === GENERAL_CHAT_ID;
+  const activeMember = activeId && !isGeneral ? MEMBERS_BY_ID[activeId] : null;
+  /** Nom affiché en en-tête : le salon n'a pas de membre associé. */
+  const activeLabel = isGeneral ? "Salon des Épaulettes" : activeMember?.firstName ?? "";
 
   useEffect(() => {
     if (open && activeId) markConversationRead(activeId);
@@ -169,11 +173,17 @@ function Dock() {
           {/* Conversations */}
           <div className="hidden min-h-0 overflow-y-auto border-r border-line bg-bg/50 p-2 sm:block">
             {conversations.map((c) => {
-              const m = MEMBERS_BY_ID[c.withId];
-              if (!m) return null;
+              const general = c.withId === GENERAL_CHAT_ID;
+              const m = general ? null : MEMBERS_BY_ID[c.withId];
+              if (!general && !m) return null;
               const last = c.messages[c.messages.length - 1];
               const unread = c.messages.filter((x) => !x.read && x.from !== ME).length;
               const preview = last ? decodeMessage(last.text) : null;
+              const author = last && last.from !== ME ? MEMBERS_BY_ID[last.from] : null;
+              const previewText =
+                preview?.type === "sticker" ? preview.value
+                  : preview?.type === "gif" ? `GIF · ${preview.value.label}`
+                  : last?.text;
               return (
                 <button
                   key={c.withId}
@@ -182,13 +192,16 @@ function Dock() {
                     c.withId === activeId ? "bg-turquoise/12" : "hover:bg-cream"
                   }`}
                 >
-                  <Avatar seed={m.id} first={m.firstName} last={m.lastName} size={32} />
+                  {general ? <GeneralAvatar size={32} /> : (
+                    <Avatar seed={m!.id} first={m!.firstName} last={m!.lastName} size={32} />
+                  )}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{m.firstName}</p>
+                    <p className="truncate text-sm font-medium">
+                      {general ? "Salon des Épaulettes" : m!.firstName}
+                    </p>
                     <p className="truncate text-xs text-ink-soft">
-                      {preview?.type === "sticker" ? preview.value
-                        : preview?.type === "gif" ? `GIF · ${preview.value.label}`
-                        : last?.text}
+                      {general && author ? `${author.firstName} : ` : ""}
+                      {previewText}
                     </p>
                   </div>
                   {unread > 0 && (
@@ -203,24 +216,30 @@ function Dock() {
 
           {/* Fil */}
           <div className="flex min-h-0 flex-col">
-            {!activeMember ? (
+            {!activeMember && !isGeneral ? (
               <div className="grid flex-1 place-items-center p-6 text-center text-sm text-ink-soft">
                 Choisissez une conversation, ou écrivez à une nouvelle membre.
               </div>
             ) : (
               <>
                 <div className="flex items-center gap-2 border-b border-line px-3 py-2">
-                  <Avatar
-                    seed={activeMember.id} first={activeMember.firstName}
-                    last={activeMember.lastName} size={32}
-                  />
+                  {isGeneral ? <GeneralAvatar size={32} /> : (
+                    <Avatar
+                      seed={activeMember!.id} first={activeMember!.firstName}
+                      last={activeMember!.lastName} size={32}
+                    />
+                  )}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold">
-                      {activeMember.firstName} {activeMember.lastName}
+                      {isGeneral ? "Salon des Épaulettes" : `${activeMember!.firstName} ${activeMember!.lastName}`}
                     </p>
-                    <p className="truncate text-xs text-ink-soft">{activeMember.job}</p>
+                    <p className="truncate text-xs text-ink-soft">
+                      {isGeneral
+                        ? `${MEMBERS.length + 1} membres · tout le réseau`
+                        : activeMember!.job}
+                    </p>
                   </div>
-                  {activeMember.linkedin && (
+                  {!isGeneral && activeMember!.linkedin && (
                     <a
                       href={DEMO_LINKEDIN}
                       target="_blank" rel="noreferrer"
@@ -235,21 +254,37 @@ function Dock() {
                   {(active?.messages ?? []).map((msg) => {
                     const mine = msg.from === ME;
                     const content = decodeMessage(msg.text);
+                    // Dans le salon, chaque message vient d'une membre différente.
+                    const author = mine ? null : MEMBERS_BY_ID[msg.from] ?? activeMember;
                     return (
                       <div
                         key={msg.id}
                         className={`flex animate-fade-up gap-2 ${mine ? "justify-end" : ""}`}
                       >
-                        {!mine && (
+                        {!mine && author && (
                           <Avatar
-                            seed={activeMember.id} first={activeMember.firstName}
-                            last={activeMember.lastName} size={24} className="self-end"
+                            seed={author.id} first={author.firstName}
+                            last={author.lastName} size={24} className="self-end"
                           />
                         )}
                         {content.type === "sticker" ? (
-                          <span className="text-5xl leading-none">{content.value}</span>
+                          <div className={isGeneral && !mine ? "" : undefined}>
+                            {isGeneral && !mine && author && (
+                              <p className="mb-0.5 text-[11px] font-semibold text-[#0E7C8C]">
+                                {author.firstName}
+                              </p>
+                            )}
+                            <span className="text-5xl leading-none">{content.value}</span>
+                          </div>
                         ) : content.type === "gif" ? (
-                          <GifCard gif={content.value} size={160} />
+                          <div>
+                            {isGeneral && !mine && author && (
+                              <p className="mb-0.5 text-[11px] font-semibold text-[#0E7C8C]">
+                                {author.firstName}
+                              </p>
+                            )}
+                            <GifCard gif={content.value} size={160} />
+                          </div>
                         ) : (
                           <div
                             className={`max-w-[78%] rounded-2xl px-3 py-2 text-sm ${
@@ -258,6 +293,12 @@ function Dock() {
                                 : "rounded-bl-sm border border-line bg-surface"
                             }`}
                           >
+                            {isGeneral && !mine && author && (
+                              <p className="mb-0.5 flex items-center gap-1.5 text-[11px] font-semibold text-[#0E7C8C]">
+                                {author.firstName} {author.lastName}
+                                <NewcomerBadge member={author} />
+                              </p>
+                            )}
                             <p className="whitespace-pre-wrap">{content.value}</p>
                             <p className={`mt-0.5 text-[10px] ${mine ? "text-white/70" : "text-ink-soft"}`}>
                               {new Date(msg.at).toLocaleString("fr-FR", {
@@ -278,7 +319,9 @@ function Dock() {
                   })}
                   {!active?.messages.length && (
                     <p className="py-6 text-center text-sm text-ink-soft">
-                      Premier message à {activeMember.firstName}.
+                      {isGeneral
+                        ? "Lancez la conversation du réseau."
+                        : `Premier message à ${activeLabel}.`}
                     </p>
                   )}
                   <div ref={endRef} />
@@ -344,7 +387,7 @@ function Dock() {
                   <textarea
                     rows={1}
                     className={`${inputClass} max-h-28 min-h-10 flex-1 resize-none py-2`}
-                    placeholder={`Écrire à ${activeMember.firstName}…`}
+                    placeholder={isGeneral ? "Écrire à tout le réseau…" : `Écrire à ${activeLabel}…`}
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={(e) => {
@@ -361,6 +404,23 @@ function Dock() {
         </div>
       </div>
     </>
+  );
+}
+
+/** Pastille du salon commun : trois visages stylisés, pas un avatar de membre. */
+function GeneralAvatar({ size = 32 }: { size?: number }) {
+  return (
+    <span
+      style={{ width: size, height: size }}
+      className="grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-turquoise to-rose text-white"
+      aria-hidden
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" className="size-[58%]">
+        <circle cx="9" cy="9" r="3" />
+        <path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5" strokeLinecap="round" />
+        <path d="M16 6.5a3 3 0 0 1 0 5.6M17.5 19c0-2.4-.9-4.2-2.4-5.2" strokeLinecap="round" />
+      </svg>
+    </span>
   );
 }
 
