@@ -1,10 +1,46 @@
-l'idee : web app all in one pour centraliser les outils:
-onboarding ultra personalise, photo, ou avatar, gouts les hobits, age profession etc pour matcher facilement
--un agenda
--une carte 3D de marseille avec les evenements disponibles visibles (en mettre 3 pour la demo), et la possibilite d'en creer
-inviation marainage avec code promo si acceptation
--avant apero une visio des nouvelles arrivantes pour integration optimisee
+# Idées — Le Réseau des Épaulettes
 
+## L'idée de départ
 
-UI moderne simple prise en main : code couleur de l'entreprise :
-#25C7D9, #F2F3DC, #F6577C
+Web app all-in-one pour centraliser les outils du réseau :
+
+- onboarding ultra personnalisé — photo ou avatar, goûts, hobbies, âge, profession — pour matcher facilement
+- un agenda
+- une carte 3D de Marseille avec les événements visibles, et la possibilité d'en créer
+- invitation marrainage avec code promo si acceptation
+- avant l'apéro, une visio des nouvelles arrivantes pour une intégration optimisée
+
+UI moderne, simple à prendre en main. Code couleur de l'entreprise :
+`#25C7D9`, `#F2F3DC`, `#F6577C`.
+
+## Ce qui a été ajouté
+
+**Onboarding**
+- Onboarding **conversationnel** plutôt que formulaire : l'Épaulette pose une question à la fois.
+- **Avatar génératif** déterministe (initiales + dégradé de la charte) si pas de photo.
+- **Aperçu en direct des rencontres** pendant l'onboarding : la preuve immédiate que remplir son profil sert.
+
+**Matching — le cœur de valeur**
+- Trois familles de suggestions : **complémentaire** (elle couvre votre besoin), **pont** (lien modérément faible, contacts non redondants), **affinité**.
+- Chaque suggestion porte **une justification en une phrase** et **un message d'intro pré-rédigé**, prêt à copier.
+- **Demandes d'aide** : une membre décrit son besoin, le système route vers les 3 bonnes personnes au lieu de le noyer dans WhatsApp.
+
+**Événementiel**
+- Sur la carte 3D : **les membres aussi**, en pastilles par quartier — le réseau devient visible.
+- **Placement de tables suggéré** pour l'apéro : on évite d'asseoir ensemble celles qui se connaissent déjà, avec un brise-glace par table.
+- **Pré-apéro visio** avec déroulé des 30 minutes et lien de salon.
+
+**Marrainage**
+- Codes uniques avec **suivi d'état** (envoyée → acceptée → inscrite).
+- **Paliers de remise** (-15 % / -30 % / -50 %) et **classement des marraines**.
+
+**Animation**
+- **Carte des liens** : graphe du réseau, membres isolées en rose.
+- **Priorités d'animation** : qui décroche, donc qui relancer — l'écran qui montre le ROI à l'association.
+
+## Pistes non faites
+
+- Carte de visite publique partageable par membre (vecteur d'adoption via le WhatsApp existant).
+- Digest hebdomadaire à poster dans le groupe WhatsApp existant.
+- Vraie visio intégrée plutôt qu'un lien externe.
+- Onglet « Coalitions » : répondre en groupement à des appels d'offres publics (voir CONTEXT.md).

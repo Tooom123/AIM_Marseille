@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Le Réseau des Épaulettes
 
-## Getting Started
+Application de démonstration pour le hackathon AIM 2026 — « L'IA au service de l'égalité ».
 
-First, run the development server:
+Une web app unique pour le Réseau des Épaulettes : onboarding personnalisé, carte 3D
+des événements, mises en relation justifiées, marrainage et intégration des nouvelles.
+
+## Lancer
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aucune clé API, aucune base de données, aucun service externe à configurer.
+Tout est mocké : les 22 profils membres sont synthétiques, et l'état de la session
+est conservé dans le `localStorage` du navigateur.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Parcours de démo (90 s)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **`/bienvenue`** — l'onboarding conversationnel. Dès l'étape « compétences »,
+   un encart affiche les premières rencontres suggérées : le profil sert immédiatement.
+2. **`/accueil`** — les rencontres de la semaine, chacune avec sa justification et
+   son message d'intro prêt à copier. Plus bas, taper un besoin dans « Demander un
+   coup d'épaule » : les trois bonnes membres apparaissent pendant la frappe.
+3. **`/carte`** — Marseille en relief, les événements et les membres par quartier.
+   Cliquer un apéro affiche le placement de tables suggéré. « Créer un événement »
+   le pose sur la carte en direct.
+4. **`/agenda`** — le pré-apéro visio d'intégration, avec le déroulé des 30 minutes.
+5. **`/reseau` → Carte des liens** — le graphe, les membres isolées en rose, et les
+   priorités d'animation.
+6. **`/marrainage`** — envoyer une invitation génère un code ; faire avancer son statut
+   fait monter le palier de remise.
 
-## Learn More
+Pour repartir de zéro : **Profil → Réinitialiser la démo**.
 
-To learn more about Next.js, take a look at the following resources:
+## Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+├── app/            # une page par écran (App Router)
+├── components/     # Shell, Map3D, NetworkGraph, MemberCard, primitives UI
+└── lib/
+    ├── members.ts  # 22 profils synthétiques géolocalisés
+    ├── events.ts   # événements, ancrés sur la date du jour
+    ├── matching.ts # scoring, routage des demandes, placement de tables
+    └── store.tsx   # état applicatif + persistance localStorage
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Choix techniques
 
-## Deploy on Vercel
+- **Next.js 16 + Tailwind 4** — un seul processus, aucun back-end à déployer.
+- **MapLibre GL + tuiles CARTO/OSM** — carte 3D réelle, sans clé API. Le worker de
+  MapLibre est servi depuis `public/maplibre/` : son chargement par défaut échoue
+  avec le bundler, et la carte reste alors vide.
+- **Graphe en canvas** — force-directed écrit à la main, pas de dépendance de plus.
+- **Matching déterministe** — recouvrement de tokens entre besoins, offres et
+  compétences, plus un bonus « pont » pour les liens modérément faibles. Aucun appel
+  réseau : rien ne peut tomber en panne pendant le pitch.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Données
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Les 22 profils, leurs relations et les événements sont **fictifs** et écrits à la main
+dans `src/lib/`. Aucune donnée personnelle réelle n'est utilisée.
